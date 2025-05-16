@@ -1,0 +1,41 @@
+litreview_rag_project/
+├── manage.py
+├── main.py
+├── requirements.txt
+├── litreview_rag_project/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── rag_app/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── forms.py
+│   ├── templates/
+│   │   └── rag_app/
+│   │       ├── index.html
+│   │       └── review_results.html
+│   ├── static/
+│   │   └── rag_app/
+│   │       └── styles.css
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── file_loader.py           # Folder selection & PDF ingestion
+│   │   ├── metadata_extractor.py    # MetadataExtractorAgent
+│   │   ├── research_question.py     # ResearchQuestionExtractorAgent
+│   │   ├── methodology_summary.py   # MethodologySummarizerAgent
+│   │   ├── findings_synthesizer.py  # FindingsSynthesizerAgent
+│   │   ├── theme_cluster.py         # ThematicSynthesizerAgent
+│   │   ├── gap_identifier.py        # GapIdentifierAgent
+│   │   ├── citation_mapper.py       # CitationMappingAgent
+│   │   ├── vector_store.py          # RAG vector store setup
+│   │   ├── reranker.py              # RelevanceRerankerAgent
+│   │   ├── composer.py              # LiteratureComposerAgent
+│   │   ├── editor.py                # EditorAgent
+│   │   └── rag_pipeline.py          # Orchestrates all 11 agents
+└── .gitignore
