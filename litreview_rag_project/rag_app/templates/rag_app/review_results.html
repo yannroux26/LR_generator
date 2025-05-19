@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Review Results{% endblock %}
+
+{% block content %}
+<div class="container">
+  <header>
+    <h1>Literature Review Results</h1>
+    <p>Below are the extracted outputs from each agent and your final edited review.</p>
+  </header>
+
+  <!-- Per-paper accordion -->
+  <section class="review-section">
+    <h2>Paper-by-Paper Outputs</h2>
+    {% for paper in result.paper_data %}
+      <details class="paper-item">
+        <summary>{{ paper.filename }}</summary>
+        <div class="agent-output">
+          <h3>Metadata</h3>
+          <ul>
+            <li><strong>Title:</strong> {{ paper.metadata.title }}</li>
+            <li><strong>Authors:</strong> {{ paper.metadata.authors|join:", " }}</li>
+            <li><strong>Journal:</strong> {{ paper.metadata.journal }}</li>
+            <li><strong>Year:</strong> {{ paper.metadata.year }}</li>
+            <li><strong>DOI:</strong> {{ paper.metadata.doi }}</li>
+            <li><strong>Keywords:</strong> {{ paper.metadata.keywords|join:", " }}</li>
+          </ul>
+
+          <h3>Research Question</h3>
+          <p>{{ paper.research_question }}</p>
+
+          <h3>Methodology</h3>
+          <ul>
+            {% for bullet in paper.methodology %}
+              <li>{{ bullet }}</li>
+            {% endfor %}
+          </ul>
+
+          <h3>Findings</h3>
+          <ul>
+            {% for bullet in paper.findings %}
+              <li>{{ bullet }}</li>
+            {% endfor %}
+          </ul>
+
+          <h3>Themes</h3>
+          <ul>
+            {% for theme in paper.themes %}
+              <li>{{ theme }}</li>
+            {% endfor %}
+          </ul>
+
+          <h3>Research Gaps</h3>
+          <ul>
+            {% for gap in paper.gaps %}
+              <li>{{ gap }}</li>
+            {% endfor %}
+          </ul>
+
+          <h3>Citations ({{ paper.references|length }})</h3>
+          <ul>
+            {% for ref in paper.references %}
+              <li>[{{ ref.id }}] {{ ref.full }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    {% endfor %}
+  </section>
+
+  <!-- Final review -->
+  <section class="review-section">
+    <h2>Final Edited Review</h2>
+    <div class="final-review">
+      {{ result.final_review|linebreaks }}
+    </div>
+  </section>
+
+  <p><a href="{% url 'rag_app:index' %}">← Back to folder selection</a></p>
+</div>
+{% endblock %}

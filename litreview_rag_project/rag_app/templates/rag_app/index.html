@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Literature Review Generator{% endblock %}
+
+{% block content %}
+<div class="container">
+  <header>
+    <h1>RAG Literature Review Generator</h1>
+    <p>Select or enter the path to the folder containing your PDF papers.</p>
+  </header>
+
+  <form class="upload-form" method="post" action="{% url 'rag_app:generate_review' %}">
+    {% csrf_token %}
+    <input
+      type="text"
+      name="folder_path"
+      placeholder="e.g. /home/user/papers"
+      required
+    />
+    <button type="submit" class="generate-btn">Generate Review</button>
+  </form>
+
+  {% if error %}
+    <div class="error">{{ error }}</div>
+  {% endif %}
+</div>
+{% endblock %}

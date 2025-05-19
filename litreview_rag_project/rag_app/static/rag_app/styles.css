@@ -1,0 +1,105 @@
+/* Base resets */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Container */
+  .container {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  /* Folder selection form */
+  form.upload-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  form.upload-form input[type="text"] {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  form.upload-form button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  /* Review Results */
+  .review-section {
+    margin-bottom: 2rem;
+  }
+  .review-section h2 {
+    margin: 1rem 0;
+    color: #444;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Paper accordion */
+  .paper-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  .paper-item summary {
+    padding: 0.8rem 1rem;
+    background: #f7f7f7;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .paper-item details[open] summary {
+    background: #e7e7e7;
+  }
+  .paper-item .agent-output {
+    padding: 0.8rem 1rem;
+    background: #fff;
+    border-top: 1px solid #ddd;
+  }
+  .agent-output h3 {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: #555;
+  }
+  .agent-output ul {
+    list-style: disc inside;
+    margin-left: 1rem;
+  }
+  
+  /* Final review text */
+  .final-review {
+    white-space: pre-wrap;
+    background: #fafafa;
+    padding: 1rem;
+    border: 1px solid #eee;
+    border-radius: 4px;
+  }
+  
+  /* Button styles */
+  button.generate-btn {
+    background-color: #0057e7;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+  }
+  button.generate-btn:hover {
+    background-color: #0041b3;
+  }
+  
