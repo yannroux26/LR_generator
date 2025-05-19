@@ -1,8 +1,8 @@
-litreview_rag_project/
+LANFUSETEST1/
 ├── manage.py
 ├── main.py
 ├── requirements.txt
-├── litreview_rag_project/
+├── litreview/
 │   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
