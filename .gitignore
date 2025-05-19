@@ -1,0 +1,6 @@
+# to avoid committing sensitive information
+openaikey.env
+
+
+__pycache__/
+
