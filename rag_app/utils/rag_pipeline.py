@@ -36,8 +36,6 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     # 2. Per-paper agents
     paper_data = []
     for fname, text in corpus.items():
-        if text.startswith("ERROR_"):
-            continue  # skip load errors
         pdf_path = os.path.join(folder_path, fname)
         
         md = metadata_extractor(pdf_path)

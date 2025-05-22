@@ -48,5 +48,7 @@ def ingest_folder(folder_path: str, max_pages: int = 10) -> dict[str, str]:
         try:
             corpus[fname] = load_pdf_text(path, max_pages=max_pages)
         except Exception as e:
-            corpus[fname] = f"ERROR_LOADING_FILE: {e}"
+            print(f"Error loading {fname}: {e}")
+    
+    assert len(corpus) > 0, "No valid PDF files found or loaded."
     return corpus
