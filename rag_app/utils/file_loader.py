@@ -1,14 +1,6 @@
 import os
 from langchain_community.document_loaders import PyPDFLoader
 
-# Try to use langchain's PDF loader if available
-# try:
-#     _USE_LANGCHAIN = True
-# except ImportError:
-#     import pdfplumber
-#     _USE_LANGCHAIN = False
-
-
 def list_pdfs(folder_path: str) -> list[str]:
     """
     Recursively list all PDF files in the given folder.
@@ -21,32 +13,23 @@ def list_pdfs(folder_path: str) -> list[str]:
         for fname in files:
             if fname.lower().endswith('.pdf'):
                 pdf_files.append(os.path.join(root, fname))
+    assert len(pdf_files) > 0, f"No PDF files found in {folder_path}"
     return pdf_files
 
 
 def load_pdf_text(filepath: str, max_pages: int = 10) -> str:
     """
-    Load and extract text from the first `max_pages` pages of a PDF file.
-    Falls back to pdfplumber if langchain loader is unavailable.
+    Load and extract text from the first `max_pages` pages of a PDF file using LangChain's PyPDFLoader.
 
     :param filepath: Path to the PDF file.
     :param max_pages: Maximum number of pages to read (default: 10).
     :return: Extracted text as a single string.
     """
     text_chunks = []
-    if _USE_LANGCHAIN:
-        loader = PyPDFLoader(filepath)
-        docs = loader.load()
-        for page in docs[:max_pages]:
-            text_chunks.append(page.page_content)
-    else:
-        with pdfplumber.open(filepath) as pdf:
-            for i, page in enumerate(pdf.pages):
-                if i >= max_pages:
-                    break
-                page_text = page.extract_text()
-                if page_text:
-                    text_chunks.append(page_text)
+    loader = PyPDFLoader(filepath)
+    docs = loader.load()
+    for page in docs[:max_pages]:
+        text_chunks.append(page.page_content)
     return "\n".join(text_chunks)
 
 

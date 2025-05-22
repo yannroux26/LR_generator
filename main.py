@@ -11,12 +11,17 @@ import argparse
 import json
 import os
 import sys
+from dotenv import load_dotenv
 
 # Ensure we can import the Django settings (if needed) or pip-installed rag_app
 # If you install this project in editable mode (pip install -e .), rag_app will be on PYTHONPATH.
 # Otherwise adjust sys.path so the project root is importable.
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PROJECT_ROOT)
+
+# Load environment variables from .env file
+load_dotenv(dotenv_path="openaikey.env")
+assert os.getenv("OPENAI_API_KEY"), "OPENAI_API_KEY is not set!"
 
 from rag_app.utils.rag_pipeline import run_rag_litreview
 

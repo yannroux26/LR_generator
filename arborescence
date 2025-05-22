@@ -20,6 +20,7 @@ LANFUSETEST1/
 │   │   └── rag_app/
 │   │       ├── index.html
 │   │       └── review_results.html
+│   │   └── base.html
 │   ├── static/
 │   │   └── rag_app/
 │   │       └── styles.css

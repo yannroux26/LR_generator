@@ -30,6 +30,9 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     # 1. Ingest
     corpus = ingest_folder(folder_path, max_pages=10)
     
+    print("Loaded files :\n", list(corpus.keys()))
+    print("200 firsts char of the first document :\n\n" + corpus[list(corpus.keys())[0]][:200])
+
     # 2. Per-paper agents
     paper_data = []
     for fname, text in corpus.items():
