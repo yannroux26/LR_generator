@@ -32,7 +32,7 @@ def findings_synthesizer(filepath: str) -> Dict[str, List[str]]:
     Load relevant pages and synthesize findings.
     """
     loader = PyPDFLoader(filepath)
-    docs = loader.load()[-3:]  # last few pages usually contain results/conclusion
+    docs = loader.load()[-4:-1]  # last few pages usually contain results/conclusion
     text = ' '.join(page.page_content for page in docs)
     bullets = synthesize_findings(text)
     return {'findings': bullets}

@@ -17,23 +17,26 @@ def list_pdfs(folder_path: str) -> list[str]:
     return pdf_files
 
 
-def load_pdf_text(filepath: str, max_pages: int = 10) -> str:
+def load_pdf_text(filepath: str, max_pages: int = 0) -> str:
     """
     Load and extract text from the first `max_pages` pages of a PDF file using LangChain's PyPDFLoader.
 
     :param filepath: Path to the PDF file.
-    :param max_pages: Maximum number of pages to read (default: 10).
     :return: Extracted text as a single string.
     """
     text_chunks = []
     loader = PyPDFLoader(filepath)
     docs = loader.load()
-    for page in docs[:max_pages]:
-        text_chunks.append(page.page_content)
+    if max_pages == 0 :
+        for page in docs:
+            text_chunks.append(page.page_content)
+    else :
+        for page in docs[:max_pages]:
+            text_chunks.append(page.page_content)
     return "\n".join(text_chunks)
 
 
-def ingest_folder(folder_path: str, max_pages: int = 10) -> dict[str, str]:
+def ingest_folder(folder_path: str, max_pages: int = 0) -> dict[str, str]:
     """
     Ingest all PDFs in a folder and return a mapping of filename to extracted text.
 

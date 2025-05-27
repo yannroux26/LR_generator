@@ -35,6 +35,9 @@ def metadata_extractor(filepath: str) -> Dict:
     """
     # use 2 pages for metadata extraction context
     loader = PyPDFLoader(filepath)
-    docs = loader.load()[0:2]
+    docs = loader.load()[0:2] 
     text = ' '.join(page.page_content for page in docs)
+    
+    print("OOOOOOOOOOOOOOOOOO\n" + json.dumps(extract_metadata_from_text(text), indent=2))
+
     return extract_metadata_from_text(text)

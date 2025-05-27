@@ -31,7 +31,7 @@ def gap_identifier(filepath: str) -> Dict[str, List[str]]:
     Load abstract and methodology pages and identify gaps.
     """
     loader = PyPDFLoader(filepath)
-    docs = loader.load()
-    text = ' '.join([docs[0].page_content] + [p.page_content for p in docs[1:4]])
+    docs = loader.load()[0:4] 
+    text = ' '.join(page.page_content for page in docs)
     gaps = identify_gaps(text)
     return {'gaps': gaps}
