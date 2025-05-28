@@ -1,6 +1,6 @@
 # to avoid committing sensitive information
 openaikey.env
 
-
+results/
 __pycache__/
 
