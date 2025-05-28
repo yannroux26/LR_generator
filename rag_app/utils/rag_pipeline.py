@@ -63,9 +63,11 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
 
         paper_data.append(paper_info)
 
+    print("\nVectorisation")
     # 3. Vector store (for potential ad-hoc retrieval)
     vector_store = build_vector_store(corpus)
     
+    print("\nTheme clustering")
     # 4. Theme clustering — cluster by paper titles
     titles = [paper["metadata"].get("title", paper["filename"]) for paper in paper_data]
     themes = thematic_synthesizer(titles, n_clusters=min(5, len(titles)))
@@ -78,7 +80,9 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     
     # 5. Compose & edit
     all_data = {"papers": paper_data}
+    print("\nComposing review")
     raw_draft = compose_review(all_data)
+    print("\nEditing review")
     final_review = edit_review(raw_draft)
     
     # Return full structure

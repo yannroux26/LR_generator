@@ -22,7 +22,7 @@ def build_vector_store(corpus: Dict[str, str]) -> FAISS:
     """
     # Check for existing index
     if os.path.exists(INDEX_DIR):
-        return FAISS.load_local(INDEX_DIR, embeddings_model)
+        return FAISS.load_local(INDEX_DIR, embeddings_model, allow_dangerous_deserialization=True)
 
     # Prepare documents
     docs: List[Document] = []

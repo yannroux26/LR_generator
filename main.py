@@ -35,8 +35,8 @@ def parse_args():
     )
     parser.add_argument(
         "--output", "-o",
-        help="Path to save the JSON result (default: ./review_output.json).",
-        default="review_output.json"
+        help="Path to save the JSON result (default: ./results/review_output.json).",
+        default="results/review_output.json"
     )
     return parser.parse_args()
 
