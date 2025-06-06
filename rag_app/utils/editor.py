@@ -11,6 +11,7 @@ You are a scholarly editor.
 Please refine the following literature review draft for academic clarity, coherence, and readability. Also:
 
 - Format all in‑text citations and the reference list in IEEE style (numbered [1], [2], …).
+- Ensure all citations of papers contain a doi.
 - Ensure section headings remain intact.
 - Provide the formatted reference list at the end under the heading “References”.
 """

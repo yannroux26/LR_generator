@@ -28,7 +28,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     Returns final edited review plus intermediate data.
     """
     # 1. Ingest
-    corpus = ingest_folder(folder_path, max_pages=0) # max_pages is the limmit of pages to load per PDF, 0 means no limits
+    corpus = ingest_folder(folder_path, max_pages=10) # max_pages is the limmit of pages to load per PDF, 0 means no limits
     
     print("Loaded files :\n", list(corpus.keys()))
     print("200 firsts char of the first document :\n\n" + corpus[list(corpus.keys())[0]][:2000] + "\n")
@@ -38,18 +38,21 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     for fname, text in corpus.items():
         pdf_path = os.path.join(folder_path, fname)
         
+        print(f"\nProcessing paper: {fname}")
         print("\nmetadata_extractor")
         md = metadata_extractor(pdf_path)
+        
         print("\nresearch_question_extractor")
         rq = research_question_extractor(pdf_path)
+        
         print("\nmethodology_summarizer")
         meth = methodology_summarizer(pdf_path)
+        
         print("\nfindings_synthesizer")
         finds = findings_synthesizer(pdf_path)
+        
         print("\ngap_identifier")
         gaps = gap_identifier(pdf_path)
-        print("\ncitation_mapper")
-        cites = map_citations(pdf_path)
         
         paper_info = {
             "filename": fname,
@@ -58,7 +61,6 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
             "methodology": meth.get("methodology", []),
             "findings": finds.get("findings", []),
             "gaps": gaps.get("gaps", []),
-            "references": cites.get("references", [])
         }
 
         paper_data.append(paper_info)
