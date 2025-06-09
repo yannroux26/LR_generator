@@ -33,9 +33,13 @@ def extract_sections_from_pdf(path):
         "references", "bibliography", "works cited",
         "appendix", "supplementary materials"
     ]
-    pattern = r"\n\s*(%s)\s*\n" % "|".join(section_headers)
+    pattern = r"\n\s*(\d.\.?)*\s*(%s)\s*:?\s*\n" % "|".join(section_headers)
     splits = re.split(pattern, full_text, flags=re.IGNORECASE)
 
+    # Cleaning up splits
+    splits = [s for s in splits if s is not None]
+    splits = [s for s in splits if not re.fullmatch(r"(\d\.?)+", s.strip())]
+    
     sections = {}
     for i in range(1, len(splits), 2):
         section = splits[i].strip().lower()
