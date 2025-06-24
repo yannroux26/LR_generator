@@ -7,8 +7,6 @@ Usage:
     python main.py /path/to/pdf/folder [--output output.json]
 """
 
-import argparse
-import json
 import os
 import sys
 from dotenv import load_dotenv
@@ -23,6 +21,9 @@ sys.path.insert(0, PROJECT_ROOT)
 load_dotenv(dotenv_path="openaikey.env")
 assert os.getenv("OPENAI_API_KEY"), "OPENAI_API_KEY is not set!"
 
+import argparse
+import json
+import time
 from rag_app.utils.rag_pipeline import run_rag_litreview
 
 def parse_args():
@@ -41,6 +42,7 @@ def parse_args():
     return parser.parse_args()
 
 def main():
+    starttime = time.clock()
     args = parse_args()
 
     folder_path = args.folder
@@ -55,6 +57,7 @@ def main():
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"Review completed. Results saved to: {output_path}")
+    print(f"Total time taken: {time.clock() - starttime:.2f} seconds")
 
 if __name__ == "__main__":
     main()
