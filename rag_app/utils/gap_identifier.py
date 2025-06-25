@@ -26,12 +26,9 @@ def identify_gaps(text: str) -> List[str]:
     bullets = [line.strip('-•* ') for line in content.splitlines() if line.strip()]
     return bullets
 
-def gap_identifier(filepath: str) -> Dict[str, List[str]]:
+def gap_identifier(gaps_sections: str):
     """
-    Load abstract and methodology pages and identify gaps.
+    Calls the LLM to identify research gaps from the provided sections of a paper.
     """
-    loader = PyPDFLoader(filepath)
-    docs = loader.load()[0:4] 
-    text = ' '.join(page.page_content for page in docs)
-    gaps = identify_gaps(text)
+    gaps = identify_gaps(gaps_sections)
     return {'gaps': gaps}

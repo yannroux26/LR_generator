@@ -27,12 +27,9 @@ def synthesize_findings(text: str) -> List[str]:
     return bullets
 
 
-def findings_synthesizer(filepath: str) -> Dict[str, List[str]]:
+def findings_synthesizer(findings_sections):
     """
-    Load relevant pages and synthesize findings.
+    Calls the LLM to synthesize findings from the provided sections of a paper.
     """
-    loader = PyPDFLoader(filepath)
-    docs = loader.load()[-4:-1]  # last few pages usually contain results/conclusion
-    text = ' '.join(page.page_content for page in docs)
-    bullets = synthesize_findings(text)
+    bullets = synthesize_findings(findings_sections)
     return {'findings': bullets}

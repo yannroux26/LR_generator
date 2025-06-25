@@ -24,13 +24,9 @@ def extract_research_question(text: str) -> str:
     return response.choices[0].message.content.strip()
 
 
-def research_question_extractor(filepath: str) -> Dict[str,str]:
+def research_question_extractor(research_question_sections) -> Dict[str,str]:
     """
-    Load the first few pages of the PDF and extract its research question.
+    call the LLM to extract the research question from the given sections of text.
     """
-    from langchain.document_loaders import PyPDFLoader
-    loader = PyPDFLoader(filepath)
-    docs = loader.load()[0:3]
-    text = ' '.join(page.page_content for page in docs)
-    question = extract_research_question(text)
+    question = extract_research_question(research_question_sections)
     return {'research_question': question}

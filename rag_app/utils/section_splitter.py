@@ -6,23 +6,13 @@ def extract_sections_from_pdf(path):
     loader = PyPDFLoader(path)
     pages = loader.load()
     full_text = "\n".join([page.page_content for page in pages])
-    
-    # Titre & auteurs depuis la 1ère page
-    first_page = pages[0].page_content
-    lines = first_page.strip().split('\n')
-    title = lines[0].strip()
-    authors = lines[1].strip()
-    
-    print("\nPremières 5 lignes du PDF :")
-    for line in lines[:5]:
-        print(line)
 
     # Regex sur sections
     section_headers = [
         "abstract", "summary",
         "keywords?", "key terms", "index terms",
         "introduction", "background", "overview",
-        "related works?", "previous works?", "prior work", "literature review", "state of the art",
+        "related works?", "previous works?", "recent work", "prior work", "literature review", "state of the art","state-of-the-art",
         "methods?", "methodology", "approach", "materials and methods",
         "experiment", "experimental setup", "implementation details", "experimental details",
         "results?", "findings", "evaluation results",
@@ -33,6 +23,7 @@ def extract_sections_from_pdf(path):
         "references", "bibliography", "works cited",
         "appendix", "supplementary materials"
     ]
+    
     pattern = r"\n\s*(\d.\.?)*\s*(%s)\s*:?\s*\n" % "|".join(section_headers)
     splits = re.split(pattern, full_text, flags=re.IGNORECASE)
 
@@ -46,11 +37,7 @@ def extract_sections_from_pdf(path):
         content = splits[i + 1].strip()
         sections[section] = content
 
-    return {
-        "title": title,
-        "authors": authors,
-        **sections
-    }
+    return sections
 
 
 if __name__ == "__main__":
@@ -62,4 +49,4 @@ if __name__ == "__main__":
 
     print("\nSections extraites de l'article :")
     for key, value in result.items():
-        print(f"{key}:\n {value[:200]}{'...' if len(value) > 200 else ''}\n")
+        print(f"{key}:\n {value[:200]}{value}\n")

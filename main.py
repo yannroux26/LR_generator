@@ -42,7 +42,7 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    starttime = time.clock()
+    starttime = time.time()
     args = parse_args()
 
     folder_path = args.folder
@@ -57,7 +57,7 @@ def main():
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
     print(f"Review completed. Results saved to: {output_path}")
-    print(f"Total time taken: {time.clock() - starttime:.2f} seconds")
+    print(f"Total time taken: {time.time() - starttime:.2f} seconds")
 
 if __name__ == "__main__":
     main()

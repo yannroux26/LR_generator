@@ -28,12 +28,9 @@ def summarize_methodology(text: str) -> List[str]:
     return bullets
 
 
-def methodology_summarizer(filepath: str) -> Dict[str, List[str]]:
+def methodology_summarizer(methodology_sections) -> Dict[str, List[str]]:
     """
-    Load relevant pages and summarize methodology.
+    Calls the LLM to summarize the methodology sections of a paper.
     """
-    loader = PyPDFLoader(filepath)
-    docs = loader.load()[:5]
-    text = ' '.join(page.page_content for page in docs)
-    bullets = summarize_methodology(text)
+    bullets = summarize_methodology(methodology_sections)
     return {'methodology': bullets}

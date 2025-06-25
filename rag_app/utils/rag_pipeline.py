@@ -28,31 +28,28 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     Returns final edited review plus intermediate data.
     """
     # 1. Ingest
-    corpus = ingest_folder(folder_path, max_pages=10) # max_pages is the limmit of pages to load per PDF, 0 means no limits
+    corpus = ingest_folder(folder_path)
     
-    print("Loaded files :\n", list(corpus.keys()))
-    print("200 firsts char of the first document :\n\n" + corpus[list(corpus.keys())[0]][:2000] + "\n")
-
     # 2. Per-paper agents
     paper_data = []
-    for fname, text in corpus.items():
+    for fname, sections in corpus.items():
         pdf_path = os.path.join(folder_path, fname)
         
         print(f"\nProcessing paper: {fname}")
         print("\nmetadata_extractor")
-        md = metadata_extractor(pdf_path)
+        md = metadata_extractor(sections['metadata'])
         
         print("\nresearch_question_extractor")
-        rq = research_question_extractor(pdf_path)
+        rq = research_question_extractor(sections['research_question_sections'])
         
         print("\nmethodology_summarizer")
-        meth = methodology_summarizer(pdf_path)
+        meth = methodology_summarizer(sections['methodology_sections'])
         
         print("\nfindings_synthesizer")
-        finds = findings_synthesizer(pdf_path)
+        finds = findings_synthesizer(pdf_path, sections['findings_sections'])
         
         print("\ngap_identifier")
-        gaps = gap_identifier(pdf_path)
+        gaps = gap_identifier(pdf_path, sections['gaps_sections'])
         
         paper_info = {
             "filename": fname,
@@ -62,7 +59,6 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
             "findings": finds.get("findings", []),
             "gaps": gaps.get("gaps", []),
         }
-
         paper_data.append(paper_info)
 
     print("\nVectorisation")

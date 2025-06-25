@@ -29,13 +29,8 @@ def extract_metadata_from_text(text: str) -> Dict:
     return metadata
 
 
-def metadata_extractor(filepath: str) -> Dict:
+def metadata_extractor(metadata_section) -> Dict:
     """
-    Load PDF, extract text, then extract metadata.
+    call the LLM to extract metadata from the given section of text.
     """
-    # use 2 pages for metadata extraction context
-    loader = PyPDFLoader(filepath)
-    docs = loader.load()[0:2] 
-    text = ' '.join(page.page_content for page in docs)
-
-    return extract_metadata_from_text(text)
+    return extract_metadata_from_text(metadata_section)
