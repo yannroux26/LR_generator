@@ -1,5 +1,5 @@
 # Expose all agents for easy imports
-from rag_app.utils.file_loader import ingest_folder, list_pdfs, load_pdf_text
+from rag_app.utils.file_loader import ingest_folder
 from rag_app.utils.metadata_extractor import metadata_extractor
 from rag_app.utils.research_question import research_question_extractor
 from rag_app.utils.methodology_summary import methodology_summarizer

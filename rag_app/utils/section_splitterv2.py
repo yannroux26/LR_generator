@@ -1,6 +1,5 @@
 import fitz  # PyMuPDF
 from collections import OrderedDict
-import json
 
 def extract_sections_by_format(pdf_path):
     doc = fitz.open(pdf_path)
@@ -41,7 +40,6 @@ def extract_sections_by_format(pdf_path):
                     bold_count += 1
                 total_spans += 1
 
-
             title_candidate = title_candidate.strip()
             if not title_candidate or len(title_candidate) < 4:
                 continue
@@ -62,7 +60,6 @@ def extract_sections_by_format(pdf_path):
                 and "+" not in title_candidate
                 and "-" not in title_candidate
             )
-            
            
             if "lines" not in block or block["type"] != 0:
                 continue  # ignorer images ou blocs non textuels
@@ -103,42 +100,3 @@ def extract_sections_by_format(pdf_path):
                     break
             sections["metadata"] = [first_chars[:500]]
     return sections
-
-def match_sections_keywords(sections, keywords):
-    matched_sections = {}
-    for title, content in sections.items():
-        title_lower = title.lower()
-        if any(kw in title_lower for kw in keywords):
-            # We take the first 8000 characters of the content to avoid too long sections
-            matched_sections[title] = (" ".join(content))[:8000]
-    if not matched_sections or all(not v for v in matched_sections.values()):
-        matched_sections = "Section not found"
-    else: # convert to JSON format
-        matched_sections = json.dumps(matched_sections, ensure_ascii=False, indent=2)
-
-    return matched_sections
-
-def extract_specific_sections(pdf_path):
-    sections = extract_sections_by_format(pdf_path)
-        
-    metadata = sections.get("metadata", {})
-    
-    research_question_keywords = ["abstract", "introduction", "summary", "overview"]
-    research_question_sections = match_sections_keywords(sections, research_question_keywords)
-    
-    metholodology_keywords = ["abstract", "introduction", "summary","method", "methodology", "approach"]
-    methodology_sections = match_sections_keywords(sections, metholodology_keywords)
-    
-    findings_keywords = ["abstract", "summary", "findings", "results", "discussion", "analysis", "interpretation", "conclusion"]
-    findings_sections = match_sections_keywords(sections, findings_keywords)
-    
-    gaps_keywords = [ "introduction","motivation", "literature review","related work", "state of the art","state-of-the-art","future work", "outlook", "limitation"]
-    gaps_sections = match_sections_keywords(sections, gaps_keywords)
-    
-    return {
-        "metadata": metadata,
-        "research_question_sections": research_question_sections,
-        "methodology_sections": methodology_sections,
-        "findings_sections": findings_sections,
-        "gaps_sections": gaps_sections
-    }

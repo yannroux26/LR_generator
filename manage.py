@@ -6,9 +6,6 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path="openaikey.env")
 assert os.getenv("OPENAI_API_KEY"), "OPENAI_API_KEY is not set!"
 
-from rag_app.utils.file_loader import ingest_folder, list_pdfs, load_pdf_text
-
-
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'litreview.settings')

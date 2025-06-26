@@ -1,31 +1,7 @@
 import os
 import json
 from langchain_community.document_loaders import PyPDFLoader
-from .section_splitterv2 import extract_specific_sections
-
-def load_pdf_text(filepath: str, max_pages: int = 0) -> str:
-    """
-    Load and extract text from the first `max_pages` pages of a PDF file using LangChain's PyPDFLoader.
-
-    :param filepath: Path to the PDF file.
-    :return: Extracted text as a single string.
-    """
-    text_chunks = []
-    loader = PyPDFLoader(filepath)
-    docs = loader.load()
-    if max_pages == 0 :
-        for page in docs:
-            text_chunks.append(page.page_content)
-    else :
-        for page in docs[:max_pages]:
-            text_chunks.append(page.page_content)
-    return "\n".join(text_chunks)
-
-def extract_full_pages(path: str, nbpages :int,offset: int = 0):
-    loader = PyPDFLoader(path)
-    docs = loader.load()[offset:nbpages + offset] 
-    return ' '.join(page.page_content for page in docs)
-    
+from .section_splitterv2 import extract_sections_by_format
 
 def list_pdfs(folder_path: str) -> list[str]:
     """
@@ -42,6 +18,47 @@ def list_pdfs(folder_path: str) -> list[str]:
     assert len(pdf_files) > 0, f"No PDF files found in {folder_path}"
     return pdf_files
 
+def extract_full_pages(path: str, nbpages :int,offset: int = 0):
+    loader = PyPDFLoader(path)
+    docs = loader.load()[offset:nbpages + offset] 
+    return ' '.join(page.page_content for page in docs)
+    
+def match_sections_keywords(sections, keywords, nbchar):
+    matched_sections = {}
+    for title, content in sections.items():
+        title_lower = title.lower()
+        if any(kw in title_lower for kw in keywords):
+            # We take the first `nbchar` characters of the content to avoid too long sections
+            matched_sections[title] = (" ".join(content))[:nbchar]        
+    if not matched_sections or all(not v for v in matched_sections.values()):
+        matched_sections = "Section not found"
+    return matched_sections
+
+def extract_specific_sections(pdf_path, nbchar):
+    sections = extract_sections_by_format(pdf_path)
+        
+    metadata = sections.get("metadata", {})
+    
+    research_question_keywords = ["abstract", "introduction", "summary", "overview"]
+    research_question_sections = match_sections_keywords(sections, research_question_keywords, nbchar)
+    
+    metholodology_keywords = ["abstract", "introduction", "summary","method", "methodology", "approach"]
+    methodology_sections = match_sections_keywords(sections, metholodology_keywords, nbchar)
+    
+    findings_keywords = ["abstract", "summary", "findings", "results", "discussion", "analysis", "interpretation", "conclusion"]
+    findings_sections = match_sections_keywords(sections, findings_keywords, nbchar)
+
+    gaps_keywords = [ "introduction","motivation", "literature review","related work", "state of the art","state-of-the-art","future work", "outlook", "limitation"]
+    gaps_sections = match_sections_keywords(sections, gaps_keywords, nbchar)
+
+    return {
+        "metadata": metadata,
+        "research_question_sections": research_question_sections,
+        "methodology_sections": methodology_sections,
+        "findings_sections": findings_sections,
+        "gaps_sections": gaps_sections
+    }
+    
 def ingest_folder(folder_path: str) -> dict[str, dict]:
     """
     Ingest all PDFs in a folder and return a mapping of filename to extracted text.
@@ -55,7 +72,7 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
     for path in pdf_paths:
         fname = os.path.basename(path)
         try:
-            corpus[fname] = extract_specific_sections(path)
+            corpus[fname] = extract_specific_sections(path, nbchar=5000)
             if corpus[fname]["research_question_sections"] == "Section not found":
                 print(f"Warning: nothing found for 'research_question_sections' in {fname}. Extracting full pages instead.")
                 corpus[fname]["research_question_sections"] = extract_full_pages(path, 3)
@@ -68,6 +85,10 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
             if corpus[fname]["gaps_sections"] == "Section not found":
                 print(f"Warning: nothing found for 'gaps_sections' in {fname}. Extracting full pages instead.")
                 corpus[fname]["gaps_sections"] = extract_full_pages(path, 3)
+            
+            for key in corpus[fname]:# convert to JSON format
+                if isinstance(corpus[fname][key], dict):
+                    corpus[fname][key] = json.dumps(corpus[fname][key], ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Error loading {fname}: {e}")
     
