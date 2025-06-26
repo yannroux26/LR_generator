@@ -1,7 +1,15 @@
 import os
 import json
 from langchain_community.document_loaders import PyPDFLoader
+from Levenshtein import distance
+from collections import OrderedDict
+from .section_splitter import extract_sections_by_parsing
 from .section_splitterv2 import extract_sections_by_format
+
+rq_keywords = ["abstract", "introduction", "summary", "overview"]
+metholodology_keywords = ["abstract", "introduction", "summary","method", "methodology", "approach"]
+findings_keywords = ["abstract", "summary", "findings", "results", "discussion", "analysis", "interpretation", "conclusion"]
+gaps_keywords = [ "introduction","motivation", "literature review","related work", "state of the art","state-of-the-art","future work", "outlook", "limitation"]
 
 def list_pdfs(folder_path: str) -> list[str]:
     """
@@ -24,41 +32,95 @@ def extract_full_pages(path: str, nbpages :int,offset: int = 0):
     return ' '.join(page.page_content for page in docs)
     
 def match_sections_keywords(sections, keywords, nbchar):
-    matched_sections = {}
-    for title, content in sections.items():
-        title_lower = title.lower()
-        if any(kw in title_lower for kw in keywords):
-            # We take the first `nbchar` characters of the content to avoid too long sections
-            matched_sections[title] = (" ".join(content))[:nbchar]        
-    if not matched_sections or all(not v for v in matched_sections.values()):
-        matched_sections = "Section not found"
+    matched_sections = OrderedDict()
+    
+    for keyword in keywords:
+        keylist = [title for title in sections.keys() if keyword in title.lower()]
+        if keylist:
+            # Compute Levenshtein distance between keyword and each key
+            min_key = min(keylist, key=lambda k: distance(keyword, k.lower()))
+            matched_sections[min_key] = (" ".join(sections[min_key]))[:nbchar]
     return matched_sections
 
-def extract_specific_sections(pdf_path, nbchar):
-    sections = extract_sections_by_format(pdf_path)
-        
-    metadata = sections.get("metadata", {})
-    
-    research_question_keywords = ["abstract", "introduction", "summary", "overview"]
-    research_question_sections = match_sections_keywords(sections, research_question_keywords, nbchar)
-    
-    metholodology_keywords = ["abstract", "introduction", "summary","method", "methodology", "approach"]
-    methodology_sections = match_sections_keywords(sections, metholodology_keywords, nbchar)
-    
-    findings_keywords = ["abstract", "summary", "findings", "results", "discussion", "analysis", "interpretation", "conclusion"]
-    findings_sections = match_sections_keywords(sections, findings_keywords, nbchar)
 
-    gaps_keywords = [ "introduction","motivation", "literature review","related work", "state of the art","state-of-the-art","future work", "outlook", "limitation"]
-    gaps_sections = match_sections_keywords(sections, gaps_keywords, nbchar)
+def combine_versions(sectionV1: dict, sectionV2: dict, keywords: list) -> dict:
+    combined = dict()
+    for keyword in keywords:
+        keyv1 = None
+        for key in sectionV1:
+            if key.lower() in keyword:
+                keyv1 = key
+                break
+        keyv2 = None
+        for key in sectionV2:
+            if key.lower() in keyword:
+                keyv2 = key
+                break
+            
+        if keyv1:
+            if keyv2:
+                min_key = min(keyv1.lower(), keyv2.lower(), key=lambda k: distance(keyword, k))
+                if min_key == keyv2.lower():
+                    combined[keyword] = sectionV2[keyv2]
+                else:
+                    combined[keyword] = sectionV1[keyv1]
+            else:
+                combined[keyword] = sectionV1[keyv1]
+        elif keyv2:
+            combined[keyword] = sectionV2[keyv2]
 
+    if not combined or all(not v for v in combined.values()):
+        combined = "Section not found"
+    return combined
+
+
+def extract_specific_sections(pdf_path, nbchar: int) -> dict:
+    metadatav1, sectionsv1 = extract_sections_by_parsing(pdf_path)
+    metadatav2, sectionsv2 = extract_sections_by_format(pdf_path)
+    if metadatav1:
+        metadata = metadatav1
+    elif metadatav2:
+        metadata = metadatav2
+    else:
+        print(f"Warning: no metadata found in {pdf_path}. Extracting full pages instead.")
+        metadata = extract_full_pages(pdf_path, 1)[:500]
+
+    rq_sectionsv1 = match_sections_keywords(sectionsv1, rq_keywords, nbchar)
+    rq_sectionsv2 = match_sections_keywords(sectionsv2, rq_keywords, nbchar)
+    rq_sections = combine_versions(rq_sectionsv1, rq_sectionsv2, rq_keywords)
+    if rq_sections == "Section not found":
+        print(f"Warning: nothing found for 'research_question_sections' in {pdf_path}. Extracting full pages instead.")
+        rq_sections = extract_full_pages(pdf_path, 3)
+
+    methodology_sections = match_sections_keywords(sectionsv1, metholodology_keywords, nbchar)
+    methodology_sectionsv2 = match_sections_keywords(sectionsv2, metholodology_keywords, nbchar)
+    methodology_sections = combine_versions(methodology_sections, methodology_sectionsv2, metholodology_keywords)
+    if methodology_sections == "Section not found":
+        print(f"Warning: nothing found for 'methodology_sections' in {pdf_path}. Extracting full pages instead.")
+        methodology_sections = extract_full_pages(pdf_path, 3)
+    
+    findings_sections = match_sections_keywords(sectionsv1, findings_keywords, nbchar)
+    findings_sectionsv2 = match_sections_keywords(sectionsv2, findings_keywords, nbchar)
+    findings_sections = combine_versions(findings_sections, findings_sectionsv2, findings_keywords)
+    if findings_sections == "Section not found":
+        print(f"Warning: nothing found for 'findings_sections' in {pdf_path}. Extracting full pages instead.")
+        findings_sections = extract_full_pages(pdf_path, 2).join(extract_full_pages(pdf_path, 2, -5))
+
+    gaps_sections = match_sections_keywords(sectionsv1, gaps_keywords, nbchar)
+    gaps_sectionsv2 = match_sections_keywords(sectionsv2, gaps_keywords, nbchar)
+    gaps_sections = combine_versions(gaps_sections, gaps_sectionsv2, gaps_keywords)
+    if gaps_sections == "Section not found":
+        print(f"Warning: nothing found for 'gaps_sections' in {pdf_path}. Extracting full pages instead.")
+        gaps_sections = extract_full_pages(pdf_path, 3)
+    
     return {
         "metadata": metadata,
-        "research_question_sections": research_question_sections,
+        "rq_sections": rq_sections,
         "methodology_sections": methodology_sections,
         "findings_sections": findings_sections,
         "gaps_sections": gaps_sections
     }
-    
+
 def ingest_folder(folder_path: str) -> dict[str, dict]:
     """
     Ingest all PDFs in a folder and return a mapping of filename to extracted text.
@@ -71,26 +133,13 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
     corpus = {}
     for path in pdf_paths:
         fname = os.path.basename(path)
-        try:
-            corpus[fname] = extract_specific_sections(path, nbchar=5000)
-            if corpus[fname]["research_question_sections"] == "Section not found":
-                print(f"Warning: nothing found for 'research_question_sections' in {fname}. Extracting full pages instead.")
-                corpus[fname]["research_question_sections"] = extract_full_pages(path, 3)
-            if corpus[fname]["methodology_sections"] == "Section not found":
-                print(f"Warning: nothing found for 'methodology_sections' in {fname}. Extracting full pages instead.")
-                corpus[fname]["methodology_sections"] = extract_full_pages(path, 3)
-            if corpus[fname]["findings_sections"] == "Section not found":
-                print(f"Warning: nothing found for 'findings_sections' in {fname}. Extracting full pages instead.")
-                corpus[fname]["findings_sections"] = extract_full_pages(path, 2).join(extract_full_pages(path, 2, -5))
-            if corpus[fname]["gaps_sections"] == "Section not found":
-                print(f"Warning: nothing found for 'gaps_sections' in {fname}. Extracting full pages instead.")
-                corpus[fname]["gaps_sections"] = extract_full_pages(path, 3)
-            
-            for key in corpus[fname]:# convert to JSON format
-                if isinstance(corpus[fname][key], dict):
-                    corpus[fname][key] = json.dumps(corpus[fname][key], ensure_ascii=False, indent=2)
-        except Exception as e:
-            print(f"Error loading {fname}: {e}")
+        # try:
+        corpus[fname] = extract_specific_sections(path, 5000) 
+        for key in corpus[fname]:# convert to JSON format
+            if isinstance(corpus[fname][key], dict):
+                corpus[fname][key] = json.dumps(corpus[fname][key], ensure_ascii=False, indent=2)
+        # except Exception as e:
+        #     print(f"Error loading {fname}: {e}")
     
     assert len(corpus) > 0, "No valid PDF files found or loaded."
     

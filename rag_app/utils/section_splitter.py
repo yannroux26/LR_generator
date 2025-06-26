@@ -2,7 +2,7 @@ from langchain.document_loaders import PyPDFLoader
 import re
 import sys
 
-def extract_sections_from_pdf(path):
+def extract_sections_by_parsing(path):
     loader = PyPDFLoader(path)
     pages = loader.load()
     full_text = "\n".join([page.page_content for page in pages])
@@ -32,21 +32,33 @@ def extract_sections_from_pdf(path):
     splits = [s for s in splits if not re.fullmatch(r"(\d\.?)+", s.strip())]
     
     sections = {}
+    metadata = ""
+    # Cherche la position de "abstract" dans splits
+    abstract_idx = None
     for i in range(1, len(splits), 2):
         section = splits[i].strip().lower()
         content = splits[i + 1].strip()
         sections[section] = content
+        if section == "abstract" and abstract_idx is None:
+            abstract_idx = i
 
-    return sections
-
+    if abstract_idx is not None:
+        metadata = ("".join([splits[j].strip() for j in range(0, abstract_idx)])).strip()
+    return metadata, sections
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python section_splitter.py <pdf_path>")
         sys.exit(1)
     pdf_path = sys.argv[1]
-    result = extract_sections_from_pdf(pdf_path)
+    metadata, result = extract_sections_by_parsing(pdf_path)
+
+    print("\n--- METADATA ---\n")
+    print(metadata[:500])  # Affiche les 500 premiers caractères du metadata
 
     print("\nSections extraites de l'article :")
     for key, value in result.items():
-        print(f"{key}:\n {value[:200]}{value}\n")
+        print("=="* 50)
+        print(f"{key}:\n")
+        print("--" * 50)
+        print(value[:200])

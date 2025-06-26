@@ -1,5 +1,6 @@
 import fitz  # PyMuPDF
 from collections import OrderedDict
+import re
 
 def extract_sections_by_format(pdf_path):
     doc = fitz.open(pdf_path)
@@ -71,6 +72,7 @@ def extract_sections_by_format(pdf_path):
                     section_title += span["text"]
                 section_title = section_title.replace("\n", " ").strip()
                 if section_title not in sections:
+                    section_title = re.sub(r"^(\d\.?)*\s*", "", section_title).strip()
                     sections[section_title] = []
                 current_section = section_title
 
@@ -82,21 +84,12 @@ def extract_sections_by_format(pdf_path):
             sections[current_section].append(block_text)
             
         # Group all sections before "abstract" into "metadata" if "abstract" exists
+        metadata_section = ""
         if "abstract" in sections:
-            metadata_sections = []
             for key in list(sections.keys()):
                 if key == "abstract":
                     break
-                metadata_sections.extend(sections[key])
+                metadata_section += "\n" + key + " : " + sections[key]
                 del sections[key]
-            if metadata_sections:
-                sections["metadata"] = metadata_sections
-        else :
-            # If "abstract" is not found, use the first 500 characters of the document as metadata
-            first_chars = ""
-            for section_content in sections.values():
-                first_chars += " ".join(section_content)
-                if len(first_chars) >= 500:
-                    break
-            sections["metadata"] = [first_chars[:500]]
-    return sections
+    
+    return metadata_section, sections
