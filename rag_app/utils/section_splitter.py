@@ -43,7 +43,7 @@ def extract_sections_by_parsing(path):
             abstract_idx = i
 
     if abstract_idx is not None:
-        metadata = ("".join([splits[j].strip() for j in range(0, abstract_idx)])).strip()
+        metadata = "".join([splits[j].strip() for j in range(0, abstract_idx)]).strip()
     return metadata, sections
 
 if __name__ == "__main__":
@@ -61,4 +61,4 @@ if __name__ == "__main__":
         print("=="* 50)
         print(f"{key}:\n")
         print("--" * 50)
-        print(value[:200])
+        print(value[:1000])

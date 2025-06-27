@@ -39,11 +39,20 @@ def match_sections_keywords(sections, keywords, nbchar):
         if keylist:
             # Compute Levenshtein distance between keyword and each key
             min_key = min(keylist, key=lambda k: distance(keyword, k.lower()))
-            matched_sections[min_key] = (" ".join(sections[min_key]))[:nbchar]
+            matched_sections[min_key] = sections[min_key][:nbchar]
     return matched_sections
 
 
-def combine_versions(sectionV1: dict, sectionV2: dict, keywords: list) -> dict:
+def combine_versions(sectionV1: dict, sectionV2: dict, keywords: list) -> str:
+    """ Combine sections from two versions based on keywords.
+    args:
+        sectionV1: dict, sections from version 1
+        sectionV2: dict, sections from version 2
+        keywords: list, keywords to match sections
+    returns:
+        combined: str, combined sections based on keywords
+    """
+    
     combined = dict()
     for keyword in keywords:
         keyv1 = None
@@ -62,15 +71,24 @@ def combine_versions(sectionV1: dict, sectionV2: dict, keywords: list) -> dict:
                 min_key = min(keyv1.lower(), keyv2.lower(), key=lambda k: distance(keyword, k))
                 if min_key == keyv2.lower():
                     combined[keyword] = sectionV2[keyv2]
+                    print(f"Using section from v2: {keyv2} for keyword: {keyword}")
                 else:
                     combined[keyword] = sectionV1[keyv1]
+                    print(f"Using section from v1: {keyv1} for keyword: {keyword}")
             else:
                 combined[keyword] = sectionV1[keyv1]
+                print(f"Using section from v1: {keyv1} for keyword: {keyword}")
         elif keyv2:
             combined[keyword] = sectionV2[keyv2]
+            print(f"Using section from v2: {keyv2} for keyword: {keyword}")
 
     if not combined or all(not v for v in combined.values()):
         combined = "Section not found"
+    elif len(combined) == 1:
+        k, v = next(iter(combined.items()))
+        combined = f"{k.upper()}: {v}"
+    else :
+        combined = " ".join(f"{k.upper()}: {v}" for k, v in combined.items())
     return combined
 
 
@@ -84,7 +102,7 @@ def extract_specific_sections(pdf_path, nbchar: int) -> dict:
     else:
         print(f"Warning: no metadata found in {pdf_path}. Extracting full pages instead.")
         metadata = extract_full_pages(pdf_path, 1)[:500]
-
+        
     rq_sectionsv1 = match_sections_keywords(sectionsv1, rq_keywords, nbchar)
     rq_sectionsv2 = match_sections_keywords(sectionsv2, rq_keywords, nbchar)
     rq_sections = combine_versions(rq_sectionsv1, rq_sectionsv2, rq_keywords)
@@ -145,4 +163,5 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
     
     with open("results/LLM_food.json", "w", encoding="utf-8") as f:
         json.dump(corpus, f, ensure_ascii=False, indent=2)
+        print(f"found sections saved to results/LLM_food.json")
     return corpus
