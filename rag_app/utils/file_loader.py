@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from langchain_community.document_loaders import PyPDFLoader
 from Levenshtein import distance
 from collections import OrderedDict
@@ -71,16 +72,12 @@ def combine_versions(sectionV1: dict, sectionV2: dict, keywords: list) -> str:
                 min_key = min(keyv1.lower(), keyv2.lower(), key=lambda k: distance(keyword, k))
                 if min_key == keyv2.lower():
                     combined[keyword] = sectionV2[keyv2]
-                    print(f"Using section from v2: {keyv2} for keyword: {keyword}")
                 else:
                     combined[keyword] = sectionV1[keyv1]
-                    print(f"Using section from v1: {keyv1} for keyword: {keyword}")
             else:
                 combined[keyword] = sectionV1[keyv1]
-                print(f"Using section from v1: {keyv1} for keyword: {keyword}")
         elif keyv2:
             combined[keyword] = sectionV2[keyv2]
-            print(f"Using section from v2: {keyv2} for keyword: {keyword}")
 
     if not combined or all(not v for v in combined.values()):
         combined = "Section not found"
@@ -133,7 +130,7 @@ def extract_specific_sections(pdf_path, nbchar: int) -> dict:
     
     return {
         "metadata": metadata,
-        "rq_sections": rq_sections,
+        "research_question_sections": rq_sections,
         "methodology_sections": methodology_sections,
         "findings_sections": findings_sections,
         "gaps_sections": gaps_sections
@@ -147,21 +144,21 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
     :param max_pages: Pages to load per PDF.
     :return: Dict where key is filename and value is extracted text.
     """
+    starttime = time.time()
     pdf_paths = list_pdfs(folder_path)
     corpus = {}
     for path in pdf_paths:
         fname = os.path.basename(path)
-        # try:
-        corpus[fname] = extract_specific_sections(path, 5000) 
-        for key in corpus[fname]:# convert to JSON format
-            if isinstance(corpus[fname][key], dict):
-                corpus[fname][key] = json.dumps(corpus[fname][key], ensure_ascii=False, indent=2)
-        # except Exception as e:
-        #     print(f"Error loading {fname}: {e}")
+        print(f"Loading {fname}...")
+        try:
+            corpus[fname] = extract_specific_sections(path, 5000)
+        except Exception as e:
+            print(f"Error loading {fname}: {e}")
     
     assert len(corpus) > 0, "No valid PDF files found or loaded."
     
+    print(f"Time taken for loading: {time.time() - starttime:.2f} seconds")
     with open("results/LLM_food.json", "w", encoding="utf-8") as f:
         json.dump(corpus, f, ensure_ascii=False, indent=2)
-        print(f"found sections saved to results/LLM_food.json")
+        print(f"sections found saved to results/LLM_food.json")
     return corpus

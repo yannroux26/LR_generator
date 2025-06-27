@@ -46,10 +46,10 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         meth = methodology_summarizer(sections['methodology_sections'])
         
         print("\nfindings_synthesizer")
-        finds = findings_synthesizer(pdf_path, sections['findings_sections'])
+        finds = findings_synthesizer(sections['findings_sections'])
         
         print("\ngap_identifier")
-        gaps = gap_identifier(pdf_path, sections['gaps_sections'])
+        gaps = gap_identifier(sections['gaps_sections'])
         
         paper_info = {
             "filename": fname,
@@ -63,7 +63,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
 
     print("\nVectorisation")
     # 3. Vector store (for potential ad-hoc retrieval)
-    vector_store = build_vector_store(corpus)
+    # vector_store = build_vector_store(corpus)
     
     print("\nTheme clustering")
     # 4. Theme clustering — cluster by paper titles

@@ -21,7 +21,6 @@ Data format (JSON):
       "findings": ["...","..."],
       "themes": ["...","..."],       # from thematic clustering
       "gaps": ["...","..."],
-      "references": [{id, full, authors, title, year},...]
     },
     ...
   ]
