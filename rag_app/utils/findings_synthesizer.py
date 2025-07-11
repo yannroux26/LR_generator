@@ -1,6 +1,8 @@
 from typing import List, Dict
-from openai import OpenAI
-from langchain_community.document_loaders import PyPDFLoader
+from langfuse.openai import OpenAI
+from langfuse import get_client
+
+get_client().auth_check()
 
 # Initialize OpenAI client
 openai_client = OpenAI()

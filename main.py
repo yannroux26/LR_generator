@@ -18,7 +18,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PROJECT_ROOT)
 
 # Load environment variables from .env file
-load_dotenv(dotenv_path="openaikey.env")
+load_dotenv(dotenv_path=".env")
 assert os.getenv("OPENAI_API_KEY"), "OPENAI_API_KEY is not set!"
 
 import argparse

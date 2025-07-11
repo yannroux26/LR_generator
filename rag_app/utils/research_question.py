@@ -1,5 +1,8 @@
 from typing import Dict
-from openai import OpenAI
+from langfuse.openai import OpenAI
+from langfuse import get_client
+
+get_client().auth_check()
 
 # Initialize OpenAI client
 openai_client = OpenAI()
@@ -28,5 +31,5 @@ def research_question_extractor(research_question_sections) -> Dict[str,str]:
     """
     call the LLM to extract the research question from the given sections of text.
     """
-    question = extract_research_question(research_question_sections)
+    question = extract_research_question("test")
     return {'research_question': question}

@@ -1,8 +1,8 @@
-# rag_app/utils/editor.py   # EditorAgent
-
-from openai import OpenAI
+from langfuse.openai import OpenAI
+from langfuse import get_client
 
 # Initialize OpenAI client
+get_client().auth_check()
 openai_client = OpenAI()
 
 # Prompt template for editing and IEEE formatting

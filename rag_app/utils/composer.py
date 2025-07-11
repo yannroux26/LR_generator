@@ -1,7 +1,10 @@
 # rag_app/utils/composer.py   # LiteratureComposerAgent
 
 from typing import Dict, Any
-from openai import OpenAI
+from langfuse.openai import OpenAI
+from langfuse import get_client
+
+get_client().auth_check()
 
 # Initialize OpenAI client
 openai_client = OpenAI()

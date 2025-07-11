@@ -1,10 +1,11 @@
 from typing import List, Dict
-from openai import OpenAI
-from langchain_openai.embeddings import OpenAIEmbeddings  # Mise à jour de l'importation
+from langchain_openai.embeddings import OpenAIEmbeddings
+from langfuse.openai import OpenAI
+from langfuse import get_client
 from sklearn.cluster import KMeans
-import numpy as np
 
 # Initialize clients
+get_client().auth_check()
 openai_client = OpenAI()
 embeddings_model = OpenAIEmbeddings()  # Utilisation de la nouvelle classe
 

@@ -38,7 +38,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         print(f"\nProcessing paper: {fname}")
         print("\nmetadata_extractor")
         md = metadata_extractor(sections['metadata'])
-        
+        BOOM
         print("\nresearch_question_extractor")
         rq = research_question_extractor(sections['research_question_sections'])
         

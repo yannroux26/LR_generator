@@ -1,0 +1,4 @@
+# to use your openai and langfuse keys, create a file named ".env" and copy the following
+OPENAI_API_KEY="your_openai_api_key"
+LANGFUSE_PUBLIC_KEY="your_public_key"
+LANGFUSE_SECRET_KEY="your_secret_key"

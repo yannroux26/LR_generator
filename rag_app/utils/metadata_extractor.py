@@ -1,10 +1,15 @@
+import os
 import json
 from typing import Dict
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
-from openai import OpenAI
 
-# Initialize OpenAI client (ensure API key is set in environment)
+from langfuse.openai import OpenAI
+from langfuse import get_client
+
+get_client().auth_check()
+
+# Initialize OpenAI client
 openai_client = OpenAI()
 
 # Prompt template
