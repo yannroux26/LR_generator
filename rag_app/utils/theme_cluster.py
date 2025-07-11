@@ -1,12 +1,10 @@
 from typing import List, Dict
 from langchain_openai.embeddings import OpenAIEmbeddings
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 from sklearn.cluster import KMeans
 
-# Initialize clients
-get_client().auth_check()
-openai_client = OpenAI()
+langfuse = get_client()
 embeddings_model = OpenAIEmbeddings()  # Utilisation de la nouvelle classe
 
 # Prompt template to label clusters
@@ -33,9 +31,10 @@ def label_cluster(texts: List[str], cluster_indices: List[int]) -> str:
     """
     subset = [texts[i] for i in cluster_indices]
     prompt = LABEL_PROMPT + "\n\n" + " ".join(subset)
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model='gpt-4',
-        messages=[{'role':'user','content':prompt}]
+        messages=[{'role':'user','content':prompt}],
+        name="theme_labeling_request"
     )
     return response.choices[0].message.content.strip()
 

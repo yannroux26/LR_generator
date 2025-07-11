@@ -1,11 +1,8 @@
 from typing import Dict
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-get_client().auth_check()
-
-# Initialize OpenAI client
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template to extract research question or hypothesis
 PROMPT = '''You are an expert researcher.\
@@ -17,12 +14,12 @@ def extract_research_question(text: str) -> str:
     """
     Calls LLM to extract the core research question or hypothesis.
     """
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model='gpt-4',
         messages=[
             {'role':'system','content':'You are a research question extraction agent.'},
-            {'role':'user','content':PROMPT + "\n\n" + text}
-        ]
+            {'role':'user','content':PROMPT + "\n\n" + text}],
+        name="rq_extraction_request"
     )
     return response.choices[0].message.content.strip()
 

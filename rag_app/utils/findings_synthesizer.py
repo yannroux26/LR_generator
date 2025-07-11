@@ -1,11 +1,8 @@
 from typing import List, Dict
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-get_client().auth_check()
-
-# Initialize OpenAI client
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template for findings synthesis
 PROMPT = '''You are an academic assistant.\
@@ -17,12 +14,13 @@ def synthesize_findings(text: str) -> List[str]:
     """
     Calls LLM to extract and synthesize key findings.
     """
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model='gpt-4',
         messages=[
             {'role':'system','content':'You are a findings synthesizer agent.'},
             {'role':'user','content':PROMPT + "\n\n" + text}
-        ]
+        ],
+        name="findings_synthesis_request"
     )
     content = response.choices[0].message.content.strip()
     bullets = [line.strip('-•* ') for line in content.splitlines() if line.strip()]

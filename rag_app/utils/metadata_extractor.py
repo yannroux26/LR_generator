@@ -22,10 +22,6 @@ def extract_metadata_from_text(text: str) -> Dict:
     """
     Uses LLM to extract standardized metadata from a paper's text.
     """
-    with langfuse.start_as_current_span(name="metadata_extraction_span") as span:
-        span.update_trace(tags=["metadata_extraction"])
-    
-    
     response = openai.chat.completions.create(
         model='gpt-4',
         messages=[{'role':'system','content':'You are an academic metadata extractor.'},
@@ -36,7 +32,6 @@ def extract_metadata_from_text(text: str) -> Dict:
     try:
         metadata = json.loads(content)
     except json.JSONDecodeError:
-        # fallback: wrap raw content
         metadata = {'raw_output': content}
     return metadata
 

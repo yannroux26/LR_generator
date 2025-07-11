@@ -1,10 +1,8 @@
 from typing import List, Dict
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-get_client().auth_check()
-# Initialize OpenAI client
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template to identify research gaps
 PROMPT = '''You are an expert academic reviewer.\
@@ -15,12 +13,13 @@ def identify_gaps(text: str) -> List[str]:
     """
     Calls LLM to extract research gaps.
     """
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model='gpt-4',
         messages=[
             {'role':'system','content':'You are a gap identification agent.'},
             {'role':'user','content':PROMPT + '\n\n' + text}
-        ]
+        ],
+        name="gap_identification_request"
     )
     content = response.choices[0].message.content.strip()
     bullets = [line.strip('-•* ') for line in content.splitlines() if line.strip()]

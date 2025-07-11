@@ -1,13 +1,8 @@
-# rag_app/utils/composer.py   # LiteratureComposerAgent
-
 from typing import Dict, Any
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-get_client().auth_check()
-
-# Initialize OpenAI client
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template to compose the review
 COMPOSER_PROMPT = """
@@ -48,13 +43,14 @@ def compose_review(all_paper_data: Dict[str, Any]) -> str:
       ]
     }
     """
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a literature review composer."},
             {"role": "user", "content": COMPOSER_PROMPT + "\n\n" + str(all_paper_data)}
         ],
         temperature=0.7,
-        max_tokens=1500
+        max_tokens=1500,
+        name="review_composition_request"
     )
     return response.choices[0].message.content.strip()

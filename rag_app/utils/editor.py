@@ -1,9 +1,7 @@
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-# Initialize OpenAI client
-get_client().auth_check()
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template for editing and IEEE formatting
 EDITOR_PROMPT = """
@@ -23,13 +21,14 @@ def edit_review(draft_text: str) -> str:
     :param draft_text: The raw composed literature review.
     :return: Polished review with IEEE-style citations.
     """
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a scholarly editor assistant."},
             {"role": "user", "content": EDITOR_PROMPT + "\n\n" + draft_text}
         ],
         temperature=0.3,
-        max_tokens=1500
+        max_tokens=1500,
+        name="review_editing_request"
     )
     return response.choices[0].message.content.strip()

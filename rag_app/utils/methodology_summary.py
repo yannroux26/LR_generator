@@ -1,12 +1,8 @@
 from typing import List, Dict
-from openai import OpenAI
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-get_client().auth_check()
-
-# Initialize OpenAI client
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template for methodology summarization
 PROMPT = '''You are an academic assistant.\
@@ -19,12 +15,13 @@ def summarize_methodology(text: str) -> List[str]:
     """
     Calls LLM to summarize methodology into bullet points.
     """
-    response = openai_client.chat.completions.create(
+    response = openai.chat.completions.create(
         model='gpt-4',
         messages=[
             {'role':'system','content':'You are a methodology summarization agent.'},
             {'role':'user','content':PROMPT + "\n\n" + text}
-        ]
+        ],
+        name="methodology_summarization_request"
     )
     content = response.choices[0].message.content.strip()
     bullets = [line.strip('-•* ') for line in content.splitlines() if line.strip()]
