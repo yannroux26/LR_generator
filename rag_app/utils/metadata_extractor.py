@@ -4,26 +4,33 @@ from typing import Dict
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 
-from langfuse.openai import OpenAI
 from langfuse import get_client
+from langfuse.openai import openai
 
-get_client().auth_check()
-
-# Initialize OpenAI client
-openai_client = OpenAI()
+langfuse = get_client()
 
 # Prompt template
-PROMPT = '''Extract the metadata: title, authors, journal, year, DOI, and keywords from the following paper text. Return a JSON object with keys: title, authors (list), journal, year, doi, keywords (list).'''
+PROMPT = (
+    "Extract the metadata: title, authors, journal, year, DOI, and keywords from the following paper text. "
+    "Return ONLY a valid JSON object with the keys: title, authors (list), journal, year, doi, keywords (list). "
+    "Do not include any explanation, markdown, or text before or after the JSON. "
+    "If a value is missing, use null or an empty list."
+)
 
 
 def extract_metadata_from_text(text: str) -> Dict:
     """
     Uses LLM to extract standardized metadata from a paper's text.
     """
-    response = openai_client.chat.completions.create(
+    with langfuse.start_as_current_span(name="metadata_extraction_span") as span:
+        span.update_trace(tags=["metadata_extraction"])
+    
+    
+    response = openai.chat.completions.create(
         model='gpt-4',
         messages=[{'role':'system','content':'You are an academic metadata extractor.'},
-                  {'role':'user','content':PROMPT + "\n\n" + text}]
+                  {'role':'user','content':PROMPT + "\n\n" + text}],
+        name="metadata_extraction_request"
     )
     content = response.choices[0].message.content
     try:
