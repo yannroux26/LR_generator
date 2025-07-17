@@ -3,6 +3,7 @@
 import os
 from typing import Dict, Any, List
 import time
+import concurrent.futures
 
 # Import agents
 from .file_loader import ingest_folder
@@ -17,6 +18,33 @@ from .vector_store import build_vector_store, retrieve_relevant
 from .reranker import rerank_excerpts
 from .composer import compose_review
 from .editor import edit_review
+
+def process_paper(fname, sections, folder_path):
+    pdf_path = os.path.join(folder_path, fname)
+    print(f"\nProcessing paper: {fname}")
+    print("\nmetadata_extractor")
+    md = metadata_extractor(sections['metadata'])
+
+    print("\nresearch_question_extractor")
+    rq = research_question_extractor(sections['research_question_sections'])
+
+    print("\nmethodology_summarizer")
+    meth = methodology_summarizer(sections['methodology_sections'])
+
+    print("\nfindings_synthesizer")
+    finds = findings_synthesizer(sections['findings_sections'])
+
+    print("\ngap_identifier")
+    gaps = gap_identifier(sections['gaps_sections'])
+
+    return {
+        "filename": fname,
+        "metadata": md,
+        "research_question": rq.get("research_question", ""),
+        "methodology": meth.get("methodology", []),
+        "findings": finds.get("findings", []),
+        "gaps": gaps.get("gaps", []),
+    }
 
 def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     """
@@ -34,35 +62,16 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     # 2. Per-paper agents
     start_time = time.time()
     paper_data = []
-    for fname, sections in corpus.items():
-        pdf_path = os.path.join(folder_path, fname)
-        
-        print(f"\nProcessing paper: {fname}")
-        print("\nmetadata_extractor")
-        md = metadata_extractor(sections['metadata'])
-        
-        print("\nresearch_question_extractor")
-        rq = research_question_extractor(sections['research_question_sections'])
-        
-        print("\nmethodology_summarizer")
-        meth = methodology_summarizer(sections['methodology_sections'])
-        
-        print("\nfindings_synthesizer")
-        finds = findings_synthesizer(sections['findings_sections'])
-        
-        print("\ngap_identifier")
-        gaps = gap_identifier(sections['gaps_sections'])
-        
-        paper_info = {
-            "filename": fname,
-            "metadata": md,
-            "research_question": rq.get("research_question", ""),
-            "methodology": meth.get("methodology", []),
-            "findings": finds.get("findings", []),
-            "gaps": gaps.get("gaps", []),
-        }
-        paper_data.append(paper_info)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(process_paper, fname, sections, folder_path)
+            for fname, sections in corpus.items()
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            paper_data.append(future.result())
     print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
+    
+    BOOM
     print("\nVectorisation")
     # 3. Vector store (for potential ad-hoc retrieval)
     # vector_store = build_vector_store(corpus)

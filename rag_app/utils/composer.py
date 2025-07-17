@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from langfuse import get_client
 from langfuse.openai import openai
+from .llm_retry import retry_on_rate_limit
 
 langfuse = get_client()
 
@@ -33,6 +34,7 @@ Structure the output with headings:
 Write in academic style, cite each paper by its title in parentheses where appropriate.
 """
 
+@retry_on_rate_limit
 def compose_review(all_paper_data: Dict[str, Any]) -> str:
     """
     all_paper_data should be a dict:

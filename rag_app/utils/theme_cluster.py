@@ -3,6 +3,7 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langfuse import get_client
 from langfuse.openai import openai
 from sklearn.cluster import KMeans
+from .llm_retry import retry_on_rate_limit
 
 langfuse = get_client()
 embeddings_model = OpenAIEmbeddings()  # Utilisation de la nouvelle classe
@@ -24,7 +25,7 @@ def cluster_themes(texts: List[str], n_clusters: int = 5) -> Dict[int, List[int]
         clusters.setdefault(label, []).append(idx)
     return clusters
 
-
+@retry_on_rate_limit
 def label_cluster(texts: List[str], cluster_indices: List[int]) -> str:
     """
     Use LLM to generate a label for a cluster of paper titles/texts.

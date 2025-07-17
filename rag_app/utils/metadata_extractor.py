@@ -6,6 +6,7 @@ from langchain.text_splitter import CharacterTextSplitter
 
 from langfuse import get_client
 from langfuse.openai import openai
+from .llm_retry import retry_on_rate_limit
 
 langfuse = get_client()
 
@@ -18,14 +19,15 @@ PROMPT = (
 )
 
 
-def extract_metadata_from_text(text: str) -> Dict:
+@retry_on_rate_limit
+def metadata_extractor(metadata_section) -> Dict:
     """
-    Uses LLM to extract standardized metadata from a paper's text.
+    call the LLM to extract metadata from the given section of text.
     """
     response = openai.chat.completions.create(
         model='gpt-4',
         messages=[{'role':'system','content':'You are an academic metadata extractor.'},
-                  {'role':'user','content':PROMPT + "\n\n" + text}],
+                  {'role':'user','content':PROMPT + "\n\n" + metadata_section}],
         name="metadata_extraction_request"
     )
     content = response.choices[0].message.content
@@ -34,10 +36,3 @@ def extract_metadata_from_text(text: str) -> Dict:
     except json.JSONDecodeError:
         metadata = {'raw_output': content}
     return metadata
-
-
-def metadata_extractor(metadata_section) -> Dict:
-    """
-    call the LLM to extract metadata from the given section of text.
-    """
-    return extract_metadata_from_text(metadata_section)

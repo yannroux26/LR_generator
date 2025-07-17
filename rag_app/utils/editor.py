@@ -1,5 +1,6 @@
 from langfuse import get_client
 from langfuse.openai import openai
+from .llm_retry import retry_on_rate_limit
 
 langfuse = get_client()
 
@@ -14,6 +15,7 @@ Please refine the following literature review draft for academic clarity, cohere
 - Provide the formatted reference list at the end under the heading “References”.
 """
 
+@retry_on_rate_limit
 def edit_review(draft_text: str) -> str:
     """
     Calls LLM to edit the draft into final polished form with IEEE citations.

@@ -1,6 +1,7 @@
 from typing import List, Dict
 from langfuse import get_client
 from langfuse.openai import openai
+from .llm_retry import retry_on_rate_limit
 
 langfuse = get_client()
 
@@ -9,6 +10,7 @@ PROMPT = '''You are an expert academic reviewer.\
 Identify 2-3 research gaps based on the abstract and methodology of the following paper excerpt.\
 Output each gap as a concise bullet point.'''  
 
+@retry_on_rate_limit
 def identify_gaps(text: str) -> List[str]:
     """
     Calls LLM to extract research gaps.
