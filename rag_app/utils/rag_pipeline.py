@@ -2,6 +2,7 @@
 
 import os
 from typing import Dict, Any, List
+import time
 
 # Import agents
 from .file_loader import ingest_folder
@@ -31,6 +32,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     corpus = ingest_folder(folder_path)
     
     # 2. Per-paper agents
+    start_time = time.time()
     paper_data = []
     for fname, sections in corpus.items():
         pdf_path = os.path.join(folder_path, fname)
@@ -38,7 +40,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         print(f"\nProcessing paper: {fname}")
         print("\nmetadata_extractor")
         md = metadata_extractor(sections['metadata'])
-        BOOM
+        
         print("\nresearch_question_extractor")
         rq = research_question_extractor(sections['research_question_sections'])
         
@@ -60,7 +62,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
             "gaps": gaps.get("gaps", []),
         }
         paper_data.append(paper_info)
-
+    print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
     print("\nVectorisation")
     # 3. Vector store (for potential ad-hoc retrieval)
     # vector_store = build_vector_store(corpus)
