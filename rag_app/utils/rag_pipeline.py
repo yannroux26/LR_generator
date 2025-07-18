@@ -19,23 +19,20 @@ from .reranker import rerank_excerpts
 from .composer import compose_review
 from .editor import edit_review
 
-def process_paper(fname, sections, folder_path):
-    pdf_path = os.path.join(folder_path, fname)
+def process_paper(fname, sections):
     print(f"\nProcessing paper: {fname}")
-    print("\nmetadata_extractor")
-    md = metadata_extractor(sections['metadata'])
 
-    print("\nresearch_question_extractor")
-    rq = research_question_extractor(sections['research_question_sections'])
-
-    print("\nmethodology_summarizer")
-    meth = methodology_summarizer(sections['methodology_sections'])
-
-    print("\nfindings_synthesizer")
-    finds = findings_synthesizer(sections['findings_sections'])
-
-    print("\ngap_identifier")
-    gaps = gap_identifier(sections['gaps_sections'])
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_md = executor.submit(metadata_extractor, sections['metadata'])
+        future_rq = executor.submit(research_question_extractor, sections['research_question_sections'])
+        future_meth = executor.submit(methodology_summarizer, sections['methodology_sections'])
+        future_finds = executor.submit(findings_synthesizer, sections['findings_sections'])
+        future_gaps = executor.submit(gap_identifier, sections['gaps_sections'])
+        md = future_md.result()
+        rq = future_rq.result()
+        meth = future_meth.result()
+        finds = future_finds.result()
+        gaps = future_gaps.result()
 
     return {
         "filename": fname,
@@ -64,11 +61,12 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     paper_data = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
-            executor.submit(process_paper, fname, sections, folder_path)
+            executor.submit(process_paper, fname, sections)
             for fname, sections in corpus.items()
         ]
         for future in concurrent.futures.as_completed(futures):
             paper_data.append(future.result())
+            
     print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
     
     BOOM

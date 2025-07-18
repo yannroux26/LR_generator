@@ -7,7 +7,7 @@
 
 ## Key Architectural Patterns
 - **Agent Pattern:** Each major NLP/LLM task is encapsulated as a function in its own file (e.g., `metadata_extractor.py`, `methodology_summary.py`). All agent calls are orchestrated in `rag_pipeline.py`.
-- **Parallel Processing:** Per-paper agent calls are parallelized using `concurrent.futures.ThreadPoolExecutor` for efficiency (see `run_rag_litreview` in `rag_pipeline.py`).
+- **Parallel Processing:** Per-paper agent calls are parallelized using `concurrent.futures.ThreadPoolExecutor` for efficiency (see in `rag_pipeline.py`).
 - **Langfuse Integration:** LLM calls are traced and tagged using Langfuse for observability and evaluation. Tags are set via the Langfuse SDK, not as OpenAI parameters.
 - **Section Extraction:** PDF parsing and section splitting are handled by dedicated utilities (e.g., `section_splitter.py`, `file_loader.py`) to optimize the length of text given to LLMs.
 

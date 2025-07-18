@@ -144,19 +144,28 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
     :param max_pages: Pages to load per PDF.
     :return: Dict where key is filename and value is extracted text.
     """
+    import concurrent.futures
     starttime = time.time()
     pdf_paths = list_pdfs(folder_path)
     corpus = {}
-    for path in pdf_paths:
+
+    def process_pdf(path):
         fname = os.path.basename(path)
         print(f"Loading {fname}...")
         try:
-            corpus[fname] = extract_specific_sections(path, 5000)
+            return fname, extract_specific_sections(path, 5000)
         except Exception as e:
             print(f"Error loading {fname}: {e}")
-    
+            return fname, None
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = list(executor.map(process_pdf, pdf_paths))
+    for fname, result in results:
+        if result is not None:
+            corpus[fname] = result
+
     assert len(corpus) > 0, "No valid PDF files found or loaded."
-    
+
     print(f"Time taken for loading: {time.time() - starttime:.2f} seconds")
     with open("results/LLM_food.json", "w", encoding="utf-8") as f:
         json.dump(corpus, f, ensure_ascii=False, indent=2)
