@@ -20,9 +20,14 @@ class ReviewRun(models.Model):
 
     folder_path  = models.CharField(max_length=512)
     started_at   = models.DateTimeField(auto_now_add=True)
+    name         = models.CharField(max_length=255, blank=True, default="")
     finished_at  = models.DateTimeField(null=True, blank=True)
     status       = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     result       = models.JSONField(null=True, blank=True)
 
+    def display_name(self):
+        if self.name:
+            return self.name
+        return f"Literature review n°{self.id}"
     def __str__(self):
         return f"ReviewRun {self.id} – {self.folder_path} [{self.status}]"

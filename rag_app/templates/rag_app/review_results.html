@@ -5,10 +5,20 @@
 
 {% block content %}
 <div class="container">
+  
+    <p><a href="{% url 'rag_app:index' %}">← Back to folder selection</a></p>
   <header>
     <h1>Literature Review Results</h1>
     <p>Below are the extracted outputs from each agent and your final edited review.</p>
   </header>
+
+  <!-- Final review -->
+  <section class="review-section">
+    <h2>Final Edited Review</h2>
+    <div class="final-review">
+      {{ result.final_review|linebreaks }}
+    </div>
+  </section>
 
   <!-- Per-paper accordion -->
   <section class="review-section">
@@ -58,7 +68,8 @@
             {% endfor %}
           </ul>
 
-          <h3>Citations ({{ paper.references|length }})</h3>
+          <!-- <h3>Citations ({{ paper.references|length }})</h3>  -->
+           <!-- Uncomment this section to enable the citation feature. Ensure all dependencies are configured. -->
           <ul>
             {% for ref in paper.references %}
               <li>[{{ ref.id }}] {{ ref.full }}</li>
@@ -68,15 +79,5 @@
       </details>
     {% endfor %}
   </section>
-
-  <!-- Final review -->
-  <section class="review-section">
-    <h2>Final Edited Review</h2>
-    <div class="final-review">
-      {{ result.final_review|linebreaks }}
-    </div>
-  </section>
-
-  <p><a href="{% url 'rag_app:index' %}">← Back to folder selection</a></p>
 </div>
 {% endblock %}

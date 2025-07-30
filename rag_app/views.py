@@ -1,15 +1,32 @@
-# rag_app/views.py
-
 import os
+import string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .forms import FolderSelectionForm
 from .models import ReviewRun
 from .utils.rag_pipeline import run_rag_litreview
+from django.views.decorators.http import require_POST
+from django.http import HttpResponseRedirect
 
 def index(request):
     form = FolderSelectionForm()
-    return render(request, "rag_app/index.html", {"form": form})
+    reviews = ReviewRun.objects.all().order_by('-id')
+    return render(request, "rag_app/index.html", {"form": form, "reviews": reviews})
+
+@require_POST
+def rename_review(request, run_id):
+    run = get_object_or_404(ReviewRun, pk=run_id)
+    new_name = request.POST.get("new_name", "").strip()
+    if new_name:
+        run.name = new_name
+        run.save()
+    return redirect(reverse("rag_app:index"))
+
+@require_POST
+def delete_review(request, run_id):
+    run = get_object_or_404(ReviewRun, pk=run_id)
+    run.delete()
+    return redirect(reverse("rag_app:index"))
 
 def generate_review(request):
     if request.method != "POST":
@@ -31,7 +48,6 @@ def generate_review(request):
         run.save()
         return redirect(reverse("rag_app:review_results", args=[run.id]))
     except Exception as e:
-        # Mark as failed
         run.status = "FAILED"
         run.result = {"error": str(e)}
         run.save()

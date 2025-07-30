@@ -18,6 +18,7 @@ from .vector_store import build_vector_store, retrieve_relevant
 from .reranker import rerank_excerpts
 from .composer import compose_review
 from .editor import edit_review
+import json
 
 def process_paper(fname, sections):
     print(f"\nProcessing paper: {fname}")
@@ -68,8 +69,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
             paper_data.append(future.result())
             
     print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
-    
-    BOOM
+
     print("\nVectorisation")
     # 3. Vector store (for potential ad-hoc retrieval)
     # vector_store = build_vector_store(corpus)
@@ -99,3 +99,4 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         "raw_draft": raw_draft,
         "final_review": final_review
     }
+

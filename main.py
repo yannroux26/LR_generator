@@ -52,7 +52,6 @@ def main():
 
     print(f"Ingesting PDFs from: {folder_path}")
     result = run_rag_litreview(folder_path)
-
     output_path = args.output
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)

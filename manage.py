@@ -3,7 +3,7 @@ import os
 import sys
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path="openaikey.env")
+load_dotenv(dotenv_path=".env")
 assert os.getenv("OPENAI_API_KEY"), "OPENAI_API_KEY is not set!"
 
 def main():
@@ -17,6 +17,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    print("sys.argv:", sys.argv)
     execute_from_command_line(sys.argv)
 
 if __name__ == '__main__':

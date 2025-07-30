@@ -24,5 +24,41 @@
   {% if error %}
     <div class="error">{{ error }}</div>
   {% endif %}
+
+  <h2>Previous Literature Reviews</h2>
+  <table class="review-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Created</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in reviews %}
+      <tr>
+        <td>
+          <form method="post" action="{% url 'rag_app:rename_review' review.id %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="text" name="new_name" value="{{ review.display_name }}" style="width: 180px;" />
+            <button type="submit">Rename</button>
+          </form>
+        </td>
+        <td>{{ review.started_at|date:"Y-m-d H:i" }}</td>
+        <td>{{ review.status }}</td>
+        <td>
+          <a href="{% url 'rag_app:review_results' review.id %}">View</a>
+          <form method="post" action="{% url 'rag_app:delete_review' review.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('Delete this review?');">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4">No previous reviews found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}
