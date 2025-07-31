@@ -1,42 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Settings{% endblock %}
 {% block content %}
-<div class="container">
+<div class="settings-form">
   <h1>Parameters</h1>
   {% if saved %}
-    <div style="color: green; margin-bottom: 1rem;">Parameters saved!</div>
+    <div class="success">Parameters saved!</div>
   {% endif %}
   <form method="post">
     {% csrf_token %}
-    <fieldset style="margin-bottom: 2rem;">
-    <legend><strong>Character limits per section</strong></legend>
-      <label>Research Question :
+    <fieldset>
+      <legend>Character limits per section</legend>
+      <label>Research Question:
         <input type="number" name="research_question" value="{{ nbchar.research_question }}" min="100" max="20000" step="100" required>
-      </label><br><br>
-      <label>Methodology :
+      </label>
+      <label>Methodology:
         <input type="number" name="methodology" value="{{ nbchar.methodology }}" min="100" max="20000" step="100" required>
-      </label><br><br>
-      <label>Findings :
+      </label>
+      <label>Findings:
         <input type="number" name="findings" value="{{ nbchar.findings }}" min="100" max="20000" step="100" required>
-      </label><br><br>
-      <label>Gaps :
+      </label>
+      <label>Gaps:
         <input type="number" name="gaps" value="{{ nbchar.gaps }}" min="100" max="20000" step="100" required>
       </label>
     </fieldset>
-    <fieldset style="margin-bottom: 2rem;">
-    <legend><strong>Token limits</strong></legend>
-      <label>max tokens to compose the review:
+    <fieldset>
+      <legend>Token limits</legend>
+      <label>Max tokens to compose the review:
         <input type="number" id="max_tokens_compose" name="max_tokens_compose" value="{{ max_tokens_compose }}" min="100" max="4000" step="50" required>
-      </label><br><br>
-      <label>max tokens to edit the review:
+      </label>
+      <label>Max tokens to edit the review:
         <input type="number" id="max_tokens_edit" name="max_tokens_edit" value="{{ max_tokens_edit }}" min="100" max="4000" step="50" required>
       </label>
-      <div id="max-token-msg" style="color:#b36b00; font-size:0.98em; margin-top:0.5em;">
+      <div id="max-token-msg">
         <em>Note: The max tokens to edit the review must be greater or equal to the max tokens to compose the review.</em>
       </div>
     </fieldset>
     <button type="submit" class="generate-btn">Save</button>
-    <button type="button" id="reset-btn" style="margin-left:1rem;">Reset</button>
+    <button type="button" id="reset-btn">Reset</button>
   </form>
   <script>
     // Ensure max_tokens_edit >= max_tokens_compose

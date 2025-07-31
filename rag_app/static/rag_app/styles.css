@@ -1,3 +1,97 @@
+/* Settings/Parameters Page Styles */
+.settings-form {
+  max-width: 540px;
+  margin: 2.5rem auto 0 auto;
+  background: #f8fafd;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  padding: 2.5rem 2.2rem 2rem 2.2rem;
+  border: 1px solid #e3e8f0;
+}
+.settings-form h1 {
+  text-align: center;
+  font-size: 2.1rem;
+  color: #2a3a4b;
+  margin-bottom: 2rem;
+}
+.settings-form fieldset {
+  border: none;
+  background: #f2f6fa;
+  border-radius: 7px;
+  margin-bottom: 2rem;
+  padding: 1.2rem 1.2rem 0.7rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.settings-form legend {
+  font-size: 1.1rem;
+  color: #0057e7;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+}
+.settings-form label {
+  display: block;
+  margin-bottom: 1.1rem;
+  color: #2a3a4b;
+  font-size: 1.04rem;
+}
+.settings-form input[type="number"] {
+  margin-left: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  border: 1.2px solid #b6c2d1;
+  border-radius: 4px;
+  font-size: 1.04rem;
+  background: #fff;
+  transition: border 0.2s;
+  width: 120px;
+}
+.settings-form input[type="number"]:focus {
+  border: 1.5px solid #0057e7;
+  outline: none;
+}
+.settings-form button.generate-btn {
+  width: 120px;
+  padding: 0.6rem 0;
+  font-size: 1.08rem;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+}
+.settings-form #reset-btn {
+  width: 100px;
+  padding: 0.6rem 0;
+  font-size: 1.08rem;
+  background: #e7eaf3;
+  color: #333;
+  border: none;
+  border-radius: 3px;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.settings-form #reset-btn:hover {
+  background: #d0d8f6;
+}
+.settings-form .error, .settings-form .success {
+  text-align: center;
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem;
+  border-radius: 4px;
+  padding: 0.7rem 0.5rem;
+}
+.settings-form .error {
+  background: #ffeaea;
+  color: #b30000;
+  border: 1px solid #ffb3b3;
+}
+.settings-form .success {
+  background: #eaffea;
+  color: #1a7f1a;
+  border: 1px solid #b3ffb3;
+}
+.settings-form #max-token-msg {
+  color: #b36b00;
+  font-size: 0.98em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
 /* Review Table Styles */
 .review-table {
   width: 100%;
