@@ -5,6 +5,11 @@
 
 {% block content %}
 <div class="container">
+  <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+    <a href="{% url 'rag_app:settings' %}" title="Settings" style="text-decoration: none;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 5 15.4a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09c0 .66.39 1.26 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8c.13.21.22.45.22.7s-.09.49-.22.7a1.65 1.65 0 0 0-.33 1.82z"/></svg>
+    </a>
+  </div>
   <header>
     <h1>RAG Literature Review Generator</h1>
     <p>Select or enter the path to the folder containing your PDF papers.</p>
@@ -38,16 +43,16 @@
     <tbody>
       {% for review in reviews %}
       <tr>
-        <td>
+        <td data-label="Name">
           <form method="post" action="{% url 'rag_app:rename_review' review.id %}" style="display:inline;">
             {% csrf_token %}
             <input type="text" name="new_name" value="{{ review.display_name }}" style="width: 180px;" />
             <button type="submit">Rename</button>
           </form>
         </td>
-        <td>{{ review.started_at|date:"Y-m-d H:i" }}</td>
-        <td>{{ review.status }}</td>
-        <td>
+        <td data-label="Created">{{ review.started_at|date:"Y-m-d H:i" }}</td>
+        <td data-label="Status">{{ review.status }}</td>
+        <td data-label="Actions">
           <a href="{% url 'rag_app:review_results' review.id %}">View</a>
           <form method="post" action="{% url 'rag_app:delete_review' review.id %}" style="display:inline;">
             {% csrf_token %}

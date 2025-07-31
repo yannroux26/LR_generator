@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Parameters</h1>
+  {% if saved %}
+    <div style="color: green; margin-bottom: 1rem;">Parameters saved!</div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <fieldset style="margin-bottom: 2rem;">
+    <legend><strong>Character limits per section</strong></legend>
+      <label>Research Question :
+        <input type="number" name="research_question" value="{{ nbchar.research_question }}" min="100" max="20000" step="100" required>
+      </label><br><br>
+      <label>Methodology :
+        <input type="number" name="methodology" value="{{ nbchar.methodology }}" min="100" max="20000" step="100" required>
+      </label><br><br>
+      <label>Findings :
+        <input type="number" name="findings" value="{{ nbchar.findings }}" min="100" max="20000" step="100" required>
+      </label><br><br>
+      <label>Gaps :
+        <input type="number" name="gaps" value="{{ nbchar.gaps }}" min="100" max="20000" step="100" required>
+      </label>
+    </fieldset>
+    <fieldset style="margin-bottom: 2rem;">
+    <legend><strong>Token limits</strong></legend>
+      <label>max_tokens to compose the review:
+        <input type="number" id="max_tokens_compose" name="max_tokens_compose" value="{{ max_tokens_compose }}" min="100" max="4000" step="50" required>
+      </label><br><br>
+      <label>max_tokens to edit the review:
+        <input type="number" id="max_tokens_edit" name="max_tokens_edit" value="{{ max_tokens_edit }}" min="100" max="4000" step="50" required>
+      </label>
+      <div id="max-token-msg" style="color:#b36b00; font-size:0.98em; margin-top:0.5em;">
+        <em>Note: The max_tokens to edit the review must be greater than or equal to the max_tokens to compose the review.</em>
+      </div>
+    </fieldset>
+    <button type="submit" class="generate-btn">Save</button>
+    <a href="{% url 'rag_app:index' %}" style="margin-left:1rem;">Cancel</a>
+  </form>
+  <script>
+    // Ensure max_tokens_edit >= max_tokens_compose
+    const composeInput = document.getElementById('max_tokens_compose');
+    const editInput = document.getElementById('max_tokens_edit');
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+      const composeVal = parseInt(composeInput.value, 10);
+      const editVal = parseInt(editInput.value, 10);
+      if (editVal < composeVal) {
+        alert('max_tokens to edit the review must be greater than or equal to max_tokens to compose the review.');
+        editInput.focus();
+        e.preventDefault();
+      }
+    });
+    // Optionally, auto-correct on input
+    composeInput.addEventListener('input', function() {
+      if (parseInt(editInput.value, 10) < parseInt(composeInput.value, 10)) {
+        editInput.value = composeInput.value;
+      }
+      editInput.min = composeInput.value;
+    });
+  </script>
+  </form>
+</div>
+{% endblock %}

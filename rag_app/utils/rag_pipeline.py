@@ -13,7 +13,6 @@ from .methodology_summary import methodology_summarizer
 from .findings_synthesizer import findings_synthesizer
 from .theme_cluster import thematic_synthesizer
 from .gap_identifier import gap_identifier
-from .citation_mapper import map_citations
 from .vector_store import build_vector_store, retrieve_relevant
 from .reranker import rerank_excerpts
 from .composer import compose_review
@@ -54,9 +53,31 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     5. Compose & edit final review
     Returns final edited review plus intermediate data.
     """
-    # 1. Ingest
-    corpus = ingest_folder(folder_path)
-    
+    # Dynamically load settings from AppSettings
+    try:
+        from rag_app.models import AppSettings
+        settings = AppSettings.get_solo()
+        nbchar = {
+            "research_question": settings.research_question_chars,
+            "methodology": settings.methodology_chars,
+            "findings": settings.findings_chars,
+            "gaps": settings.gaps_chars
+        }
+        max_tokens_compose = settings.max_tokens_compose
+        max_tokens_edit = settings.max_tokens_edit
+    except Exception as e:
+        # fallback to defaults if settings table not ready
+        nbchar = {
+            "research_question": 5000,
+            "methodology": 5000,
+            "findings": 5000,
+            "gaps": 5000
+        }
+        max_tokens_compose = 1500
+        max_tokens_edit = 1500
+    print(f"Using settings: {nbchar}, max_tokens_compose={max_tokens_compose}, max_tokens_edit={max_tokens_edit}")
+    corpus = ingest_folder(folder_path, nbchar)
+    BOOM
     # 2. Per-paper agents
     start_time = time.time()
     paper_data = []
@@ -67,13 +88,12 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         ]
         for future in concurrent.futures.as_completed(futures):
             paper_data.append(future.result())
-            
     print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
 
     print("\nVectorisation")
     # 3. Vector store (for potential ad-hoc retrieval)
     # vector_store = build_vector_store(corpus)
-    
+
     print("\nTheme clustering")
     # 4. Theme clustering — cluster by paper titles
     titles = [paper["metadata"].get("title", paper["filename"]) for paper in paper_data]
@@ -84,14 +104,14 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         paper["themes"] = [
             theme for theme, members in themes.items() if paper_title in members
         ]
-    
+
     # 5. Compose & edit
     all_data = {"papers": paper_data}
     print("\nComposing review")
-    raw_draft = compose_review(all_data)
+    raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
     print("\nEditing review")
-    final_review = edit_review(raw_draft)
-    
+    final_review = edit_review(raw_draft, max_tokens=max_tokens_edit)
+
     # Return full structure
     return {
         "paper_data": paper_data,
@@ -99,4 +119,11 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         "raw_draft": raw_draft,
         "final_review": final_review
     }
+    
+    # Read and return the review_output.json from the results folder
 
+    results_path = os.path.join("results", "review_output.json")
+    with open(results_path, "r", encoding="utf-8") as f:
+        review_output = json.load(f)
+    print("===="*30)
+    return review_output

@@ -1,7 +1,22 @@
-# rag_app/models.py
-
 from django.db import models
-from django.contrib.postgres.fields import JSONField  # for Django >= 3.1 use models.JSONField
+from django.contrib.postgres.fields import JSONField
+
+class AppSettings(models.Model):
+    research_question_chars = models.IntegerField(default=5000)
+    methodology_chars = models.IntegerField(default=5000)
+    findings_chars = models.IntegerField(default=5000)
+    gaps_chars = models.IntegerField(default=5000)
+    max_tokens_compose = models.IntegerField(default=1500)
+    max_tokens_edit = models.IntegerField(default=1500)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # enforce singleton
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
 
 class ReviewRun(models.Model):
     """

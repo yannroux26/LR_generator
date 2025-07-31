@@ -16,7 +16,7 @@ Please refine the following literature review draft for academic clarity, cohere
 """
 
 @retry_on_rate_limit
-def edit_review(draft_text: str) -> str:
+def edit_review(draft_text: str, max_tokens: int) -> str:
     """
     Calls LLM to edit the draft into final polished form with IEEE citations.
     
@@ -30,7 +30,7 @@ def edit_review(draft_text: str) -> str:
             {"role": "user", "content": EDITOR_PROMPT + "\n\n" + draft_text}
         ],
         temperature=0.3,
-        max_tokens=1500,
+        max_tokens=max_tokens,
         name="review_editing_request"
     )
     return response.choices[0].message.content.strip()

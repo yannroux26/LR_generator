@@ -1,3 +1,31 @@
+from django.views.decorators.csrf import csrf_exempt
+from .models import AppSettings
+
+def settings_view(request):
+    settings = AppSettings.get_solo()
+    if request.method == "POST":
+        settings.research_question_chars = int(request.POST.get("research_question", 5000))
+        settings.methodology_chars = int(request.POST.get("methodology", 5000))
+        settings.findings_chars = int(request.POST.get("findings", 5000))
+        settings.gaps_chars = int(request.POST.get("gaps", 5000))
+        settings.max_tokens_compose = int(request.POST.get("max_tokens_compose", 1500))
+        settings.max_tokens_edit = int(request.POST.get("max_tokens_edit", 1500))
+        settings.save()
+        saved = True
+    else:
+        saved = False
+    nbchar = {
+        "research_question": settings.research_question_chars,
+        "methodology": settings.methodology_chars,
+        "findings": settings.findings_chars,
+        "gaps": settings.gaps_chars
+    }
+    return render(request, "rag_app/settings.html", {
+        "nbchar": nbchar,
+        "max_tokens_compose": settings.max_tokens_compose,
+        "max_tokens_edit": settings.max_tokens_edit,
+        "saved": saved
+    })
 import os
 import string
 from django.shortcuts import render, redirect, get_object_or_404

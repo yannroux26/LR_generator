@@ -89,7 +89,7 @@ def combine_versions(sectionV1: dict, sectionV2: dict, keywords: list) -> str:
     return combined
 
 
-def extract_specific_sections(pdf_path, nbchar: int) -> dict:
+def extract_specific_sections(pdf_path, nbchar: dict) -> dict:
     metadatav1, sectionsv1 = extract_sections_by_parsing(pdf_path)
     metadatav2, sectionsv2 = extract_sections_by_format(pdf_path)
     if metadatav1:
@@ -100,29 +100,29 @@ def extract_specific_sections(pdf_path, nbchar: int) -> dict:
         print(f"Warning: no metadata found in {pdf_path}. Extracting full pages instead.")
         metadata = extract_full_pages(pdf_path, 1)[:500]
         
-    rq_sectionsv1 = match_sections_keywords(sectionsv1, rq_keywords, nbchar)
-    rq_sectionsv2 = match_sections_keywords(sectionsv2, rq_keywords, nbchar)
+    rq_sectionsv1 = match_sections_keywords(sectionsv1, rq_keywords, nbchar['research_question'])
+    rq_sectionsv2 = match_sections_keywords(sectionsv2, rq_keywords, nbchar['research_question'])
     rq_sections = combine_versions(rq_sectionsv1, rq_sectionsv2, rq_keywords)
     if rq_sections == "Section not found":
         print(f"Warning: nothing found for 'research_question_sections' in {pdf_path}. Extracting full pages instead.")
         rq_sections = extract_full_pages(pdf_path, 3)
 
-    methodology_sections = match_sections_keywords(sectionsv1, metholodology_keywords, nbchar)
-    methodology_sectionsv2 = match_sections_keywords(sectionsv2, metholodology_keywords, nbchar)
+    methodology_sections = match_sections_keywords(sectionsv1, metholodology_keywords, nbchar['methodology'])
+    methodology_sectionsv2 = match_sections_keywords(sectionsv2, metholodology_keywords, nbchar['methodology'])
     methodology_sections = combine_versions(methodology_sections, methodology_sectionsv2, metholodology_keywords)
     if methodology_sections == "Section not found":
         print(f"Warning: nothing found for 'methodology_sections' in {pdf_path}. Extracting full pages instead.")
         methodology_sections = extract_full_pages(pdf_path, 3)
-    
-    findings_sections = match_sections_keywords(sectionsv1, findings_keywords, nbchar)
-    findings_sectionsv2 = match_sections_keywords(sectionsv2, findings_keywords, nbchar)
+
+    findings_sections = match_sections_keywords(sectionsv1, findings_keywords, nbchar['findings'])
+    findings_sectionsv2 = match_sections_keywords(sectionsv2, findings_keywords, nbchar['findings'])
     findings_sections = combine_versions(findings_sections, findings_sectionsv2, findings_keywords)
     if findings_sections == "Section not found":
         print(f"Warning: nothing found for 'findings_sections' in {pdf_path}. Extracting full pages instead.")
         findings_sections = extract_full_pages(pdf_path, 2).join(extract_full_pages(pdf_path, 2, -5))
 
-    gaps_sections = match_sections_keywords(sectionsv1, gaps_keywords, nbchar)
-    gaps_sectionsv2 = match_sections_keywords(sectionsv2, gaps_keywords, nbchar)
+    gaps_sections = match_sections_keywords(sectionsv1, gaps_keywords, nbchar['gaps'])
+    gaps_sectionsv2 = match_sections_keywords(sectionsv2, gaps_keywords, nbchar['gaps'])
     gaps_sections = combine_versions(gaps_sections, gaps_sectionsv2, gaps_keywords)
     if gaps_sections == "Section not found":
         print(f"Warning: nothing found for 'gaps_sections' in {pdf_path}. Extracting full pages instead.")
@@ -136,7 +136,16 @@ def extract_specific_sections(pdf_path, nbchar: int) -> dict:
         "gaps_sections": gaps_sections
     }
 
-def ingest_folder(folder_path: str) -> dict[str, dict]:
+def process_pdf(path, nbchar):
+    fname = os.path.basename(path)
+    print(f"Loading {fname}...")
+    try:
+        return fname, extract_specific_sections(path, nbchar)
+    except Exception as e:
+        print(f"Error loading {fname}: {e}")
+        return fname, None
+    
+def ingest_folder(folder_path: str, nbchar: dict) -> dict[str, dict]:
     """
     Ingest all PDFs in a folder and return a mapping of filename to extracted text.
 
@@ -149,17 +158,9 @@ def ingest_folder(folder_path: str) -> dict[str, dict]:
     pdf_paths = list_pdfs(folder_path)
     corpus = {}
 
-    def process_pdf(path):
-        fname = os.path.basename(path)
-        print(f"Loading {fname}...")
-        try:
-            return fname, extract_specific_sections(path, 5000)
-        except Exception as e:
-            print(f"Error loading {fname}: {e}")
-            return fname, None
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = list(executor.map(process_pdf, pdf_paths))
+        results = list(executor.map(process_pdf, pdf_paths, [nbchar] * len(pdf_paths)))
     for fname, result in results:
         if result is not None:
             corpus[fname] = result

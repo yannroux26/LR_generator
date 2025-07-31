@@ -35,7 +35,7 @@ Write in academic style, cite each paper by its title in parentheses where appro
 """
 
 @retry_on_rate_limit
-def compose_review(all_paper_data: Dict[str, Any]) -> str:
+def compose_review(all_paper_data: Dict[str, Any], max_tokens: int) -> str:
     """
     all_paper_data should be a dict:
     {
@@ -52,7 +52,7 @@ def compose_review(all_paper_data: Dict[str, Any]) -> str:
             {"role": "user", "content": COMPOSER_PROMPT + "\n\n" + str(all_paper_data)}
         ],
         temperature=0.7,
-        max_tokens=1500,
+        max_tokens=max_tokens,
         name="review_composition_request"
     )
     return response.choices[0].message.content.strip()
