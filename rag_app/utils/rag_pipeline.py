@@ -77,53 +77,46 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         max_tokens_edit = 1500
     print(f"Using settings: {nbchar}, max_tokens_compose={max_tokens_compose}, max_tokens_edit={max_tokens_edit}")
     corpus = ingest_folder(folder_path, nbchar)
-    # BOOM
-    # # 2. Per-paper agents
-    # start_time = time.time()
-    # paper_data = []
-    # with concurrent.futures.ThreadPoolExecutor() as executor:
-    #     futures = [
-    #         executor.submit(process_paper, fname, sections)
-    #         for fname, sections in corpus.items()
-    #     ]
-    #     for future in concurrent.futures.as_completed(futures):
-    #         paper_data.append(future.result())
-    # print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
+     
+    # 2. Per-paper agents
+    start_time = time.time()
+    paper_data = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(process_paper, fname, sections)
+            for fname, sections in corpus.items()
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            paper_data.append(future.result())
+    print(f"---Corpus processed in {time.time() - start_time:.2f} seconds---")
 
-    # print("\nVectorisation")
-    # # 3. Vector store (for potential ad-hoc retrieval)
-    # # vector_store = build_vector_store(corpus)
+    print("\nVectorisation")
+    # 3. Vector store (for potential ad-hoc retrieval)
+    # vector_store = build_vector_store(corpus)
 
-    # print("\nTheme clustering")
-    # # 4. Theme clustering — cluster by paper titles
-    # titles = [paper["metadata"].get("title", paper["filename"]) for paper in paper_data]
-    # themes = thematic_synthesizer(titles, n_clusters=min(5, len(titles)))
-    # # attach theme labels back to papers
-    # for paper in paper_data:
-    #     paper_title = paper["metadata"].get("title", paper["filename"])
-    #     paper["themes"] = [
-    #         theme for theme, members in themes.items() if paper_title in members
-    #     ]
+    print("\nTheme clustering")
+    # 4. Theme clustering — cluster by paper titles
+    titles = [paper["metadata"].get("title", paper["filename"]) for paper in paper_data]
+    themes = thematic_synthesizer(titles, n_clusters=min(5, len(titles)))
+    # attach theme labels back to papers
+    for paper in paper_data:
+        paper_title = paper["metadata"].get("title", paper["filename"])
+        paper["themes"] = [
+            theme for theme, members in themes.items() if paper_title in members
+        ]
 
-    # # 5. Compose & edit
-    # all_data = {"papers": paper_data}
-    # print("\nComposing review")
-    # raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
-    # print("\nEditing review")
-    # final_review = edit_review(raw_draft, max_tokens=max_tokens_edit)
+    # 5. Compose & edit
+    all_data = {"papers": paper_data}
+    print("\nComposing review")
+    raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
+    print("\nEditing review")
+    final_review = edit_review(raw_draft, max_tokens=max_tokens_edit)
 
-    # # Return full structure
-    # return {
-    #     "paper_data": paper_data,
-    #     "themes": themes,
-    #     "raw_draft": raw_draft,
-    #     "final_review": final_review
-    # }
-    
-    # # Read and return the review_output.json from the results folder
+    # Return full structure
+    return {
+        "paper_data": paper_data,
+        "themes": themes,
+        "raw_draft": raw_draft,
+        "final_review": final_review
+    }
 
-    results_path = os.path.join("results", "review_output.json")
-    with open(results_path, "r", encoding="utf-8") as f:
-        review_output = json.load(f)
-    print("===="*30)
-    return review_output

@@ -36,13 +36,23 @@
       </div>
     </fieldset>
     <button type="submit" class="generate-btn">Save</button>
-    <button type="reset" style="margin-left:1rem;">Reset</button>
+    <button type="button" id="reset-btn" style="margin-left:1rem;">Reset</button>
   </form>
   <script>
     // Ensure max_tokens_edit >= max_tokens_compose
     const composeInput = document.getElementById('max_tokens_compose');
     const editInput = document.getElementById('max_tokens_edit');
     const form = document.querySelector('form');
+    const resetBtn = document.getElementById('reset-btn');
+    // Default values
+    const defaults = {
+      research_question: 5000,
+      methodology: 5000,
+      findings: 5000,
+      gaps: 5000,
+      max_tokens_compose: 1500,
+      max_tokens_edit: 1500
+    };
     form.addEventListener('submit', function(e) {
       const composeVal = parseInt(composeInput.value, 10);
       const editVal = parseInt(editInput.value, 10);
@@ -58,6 +68,16 @@
         editInput.value = composeInput.value;
       }
       editInput.min = composeInput.value;
+    });
+    // Custom reset: set all fields to default values
+    resetBtn.addEventListener('click', function() {
+      form.research_question.value = defaults.research_question;
+      form.methodology.value = defaults.methodology;
+      form.findings.value = defaults.findings;
+      form.gaps.value = defaults.gaps;
+      form.max_tokens_compose.value = defaults.max_tokens_compose;
+      form.max_tokens_edit.value = defaults.max_tokens_edit;
+      editInput.min = defaults.max_tokens_compose;
     });
   </script>
   </form>

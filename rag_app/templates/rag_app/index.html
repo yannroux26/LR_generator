@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Literature Review Generator{% endblock %}
-
 {% block content %}
 <div class="container">
   <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
@@ -54,6 +52,7 @@
         <td data-label="Status">{{ review.status }}</td>
         <td data-label="Actions">
           <a href="{% url 'rag_app:review_results' review.id %}">View</a>
+          <button type="button" class="download-review-btn" data-review-id="{{ review.id }}" title="Download review" style="padding:0.2rem 0.6rem;font-size:0.98rem;cursor:pointer;border-radius:3px;border:1px solid #ccc;background:#f5f7fa;">⬇️</button>
           <form method="post" action="{% url 'rag_app:delete_review' review.id %}" style="display:inline;">
             {% csrf_token %}
             <button type="submit" onclick="return confirm('Delete this review?');">Delete</button>
@@ -66,4 +65,27 @@
     </tbody>
   </table>
 </div>
+<script>
+// Download review as .txt from the main page table
+document.querySelectorAll('.download-review-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    const reviewId = btn.getAttribute('data-review-id');
+    fetch(`/results/${reviewId}/?download=1`)
+      .then(response => response.ok ? response.text() : Promise.reject('Download failed'))
+      .then(text => {
+        const blob = new Blob([text], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'literature_review_' + reviewId + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      });
+  });
+});
+</script>
 {% endblock %}

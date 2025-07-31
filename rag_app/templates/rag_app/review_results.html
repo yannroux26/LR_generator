@@ -13,11 +13,51 @@
   
   <!-- Final review -->
   <section class="review-section">
-    <h2>Final Edited Review</h2>
-    <div class="final-review">
+    <h2 style="display:flex;align-items:center;gap:1rem;">Final Edited Review
+      <button id="copy-review-btn" title="Copy review" style="padding:0.3rem 0.7rem;font-size:1rem;cursor:pointer;border-radius:3px;border:1px solid #ccc;background:#f5f7fa;">
+        📋
+      </button>
+      <button id="download-review-btn" title="Download review" style="padding:0.3rem 0.7rem;font-size:1rem;cursor:pointer;border-radius:3px;border:1px solid #ccc;background:#f5f7fa;">
+        ⬇️
+      </button>
+    </h2>
+    <div class="final-review" id="final-review-text">
       {{ result.final_review|linebreaks }}
     </div>
   </section>
+<script>
+// Copy final review text to clipboard
+document.getElementById('copy-review-btn').addEventListener('click', function() {
+  const reviewDiv = document.getElementById('final-review-text');
+  // Get plain text (strip HTML)
+  const temp = document.createElement('div');
+  temp.innerHTML = reviewDiv.innerHTML;
+  const text = temp.innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    const btn = document.getElementById('copy-review-btn');
+    btn.textContent = '✔';
+    setTimeout(() => { btn.textContent = '📋'; }, 1200);
+  });
+});
+// Download final review as a .txt file
+document.getElementById('download-review-btn').addEventListener('click', function() {
+  const reviewDiv = document.getElementById('final-review-text');
+  const temp = document.createElement('div');
+  temp.innerHTML = reviewDiv.innerHTML;
+  const text = temp.innerText;
+  const blob = new Blob([text], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'literature_review.txt';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 100);
+});
+</script>
   
   <!-- Per-paper accordion -->
   <section class="review-section">

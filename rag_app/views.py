@@ -92,6 +92,11 @@ def review_results(request, run_id):
             "error": f"Review run is not completed (status: {run.status})."
         })
     result = run.result
+    # If ?download=1, return plain text for download
+    if request.GET.get("download") == "1":
+        from django.http import HttpResponse
+        review_text = result.get("final_review", "")
+        return HttpResponse(review_text, content_type="text/plain; charset=utf-8")
     return render(request, "rag_app/review_results.html", {
         "result": result
     })
