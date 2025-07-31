@@ -4,9 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Literature Review{% endblock %}</title>
-    <link rel="stylesheet" href="{% static '../static/rag_app/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'rag_app/styles.css' %}">
 </head>
 <body>
+    <nav style="padding: 1rem 0 1rem 1rem;">
+        <a href="{% url 'rag_app:index' %}" style="text-decoration:none; color:#0057e7; font-weight:bold; font-size:1.1rem;">
+            &#8962; Home
+        </a>
+    </nav>
     {% block content %}{% endblock %}
 </body>
 </html>
