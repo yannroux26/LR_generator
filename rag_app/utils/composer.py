@@ -1,3 +1,4 @@
+import tiktoken # used for opena AI, may be different for an other llm
 from typing import Dict, Any
 from langfuse import get_client
 from langfuse.openai import openai
@@ -47,11 +48,17 @@ def compose_review(all_paper_data: Dict[str, Any], max_tokens: int) -> str:
       "topic": "Optional topic for the review"
     }
     """
+    prompt= COMPOSER_PROMPT + "\n\n" + str(all_paper_data)
+    encoding = tiktoken.encoding_for_model("gpt-4")
+    nb_tokens = len(encoding.encode(prompt))
+    if nb_tokens >= 10000: # LLM's Token Per Minute (TPM)
+        raise ValueError(f"Prompt exceeds Token Per Minute (TPM): {nb_tokens} tokens in one call. Reduce the number of input papers.")
+    
     response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a literature review composer."},
-            {"role": "user", "content": COMPOSER_PROMPT + "\n\n" + str(all_paper_data)}
+            {"role": "user", "content": prompt}
         ],
         temperature=0.7,
         max_tokens=max_tokens,

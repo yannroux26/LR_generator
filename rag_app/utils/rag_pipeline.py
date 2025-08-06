@@ -108,9 +108,19 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
     # 5. Compose & edit
     all_data = {"papers": paper_data, "topic": topic}
     print("\nComposing review")
-    raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
-    print("\nEditing review")
-    final_review = edit_review(raw_draft, max_tokens=max_tokens_edit)
+    status = "COMPLETED"
+    try:
+        raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
+        print("\nEditing review")
+        final_review = edit_review(raw_draft, max_tokens=max_tokens_edit)
+    except ValueError as e:
+        print(f"Error in compose_review: {e}")
+        raw_draft = "Error too many papers in input"
+        final_review = (
+            "Error : The literature review could not be generated, because it would have exceed the Token Per Minute limit (TPM). "
+            "Please reduce the number of papers given in input."
+        )
+        status = "FAILED"
 
     # Return full structure
     return {
@@ -118,6 +128,7 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
         "themes": themes,
         "topic": topic,
         "raw_draft": raw_draft,
-        "final_review": final_review
+        "final_review": final_review,
+        "status": status,
     }
 
