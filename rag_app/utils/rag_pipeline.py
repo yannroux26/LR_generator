@@ -43,7 +43,7 @@ def process_paper(fname, sections):
         "gaps": gaps.get("gaps", []),
     }
 
-def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
+def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
     """
     End-to-end pipeline:
     1. Ingest PDFs → raw text corpus
@@ -106,7 +106,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
         ]
 
     # 5. Compose & edit
-    all_data = {"papers": paper_data}
+    all_data = {"papers": paper_data, "topic": topic}
     print("\nComposing review")
     raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
     print("\nEditing review")
@@ -116,6 +116,7 @@ def run_rag_litreview(folder_path: str) -> Dict[str, Any]:
     return {
         "paper_data": paper_data,
         "themes": themes,
+        "topic": topic,
         "raw_draft": raw_draft,
         "final_review": final_review
     }
