@@ -65,11 +65,13 @@ def generate_review(request):
         return render(request, "rag_app/index.html", {"form": form})
 
     folder_path = form.cleaned_data["folder_path"]
+    topic = form.cleaned_data.get("topic", "").strip()
     # Create a ReviewRun entry
-    run = ReviewRun.objects.create(folder_path=folder_path, status="RUNNING")
+    review_name = topic if topic else os.path.basename(folder_path.rstrip('/\\'))
+    run = ReviewRun.objects.create(folder_path=folder_path, name=review_name, status="RUNNING")
     try:
-        # Invoke pipeline
-        result = run_rag_litreview(folder_path)
+        # Invoke pipeline with topic
+        result = run_rag_litreview(folder_path, topic if topic else None)
         # Save results and mark completed
         run.result = result
         run.status = "COMPLETED"

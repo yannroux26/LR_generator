@@ -217,23 +217,61 @@
   }
   
   /* Folder selection form */
-  form.upload-form {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  form.upload-form input[type="text"] {
-    flex: 1;
-    padding: 0.5rem;
-    font-size: 1rem;
-  }
-  form.upload-form button {
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    cursor: pointer;
-  }
+form.upload-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 720px;
+  margin: 0 auto 2rem auto;
+  background: #f8fafd;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 2rem 2.2rem 1.5rem 2.2rem;
+  border: 1px solid #e3e8f0;
+  gap: 0.7rem;
+}
+form.upload-form .form-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+form.upload-form label {
+  font-size: 1.08rem;
+  color: #2a3a4b;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+form.upload-form input[type="text"] {
+  padding: 0.5rem 0.7rem;
+  font-size: 1.04rem;
+  border: 1.2px solid #b6c2d1;
+  border-radius: 5px;
+  background: #fff;
+  transition: border 0.2s;
+  margin-bottom: 0.1rem;
+  min-width: 220px;
+  width: 100%;
+  box-sizing: border-box;
+}
+form.upload-form input[type="text"]:focus {
+  border: 1.5px solid #0057e7;
+  outline: none;
+}
+form.upload-form .generate-btn {
+  width: 180px;
+  padding: 0.7rem 0;
+  font-size: 1.08rem;
+  margin: 0 auto;
+  background: #0057e7;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+form.upload-form .generate-btn:hover {
+  background: #003eaa;
+}
   
   /* Review Results */
   .review-section {

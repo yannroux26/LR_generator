@@ -10,18 +10,36 @@
   </div>
   <header>
     <h1>RAG Literature Review Generator</h1>
-    <p>Select or enter the path to the folder containing your PDF papers.</p>
+    <p>Please enter the path to the folder containing your PDF papers.</p>
   </header>
 
   <form class="upload-form" method="post" action="{% url 'rag_app:generate_review' %}">
     {% csrf_token %}
-    <input
-      type="text"
-      name="folder_path"
-      placeholder="e.g. /home/user/papers"
-      required
-    />
-    <button type="submit" class="generate-btn">Generate Review</button>
+    <div class="form-field">
+      <label for="topic-input">Literature review topic (optional):</label>
+      <input
+        id="topic-input"
+        type="text"
+        name="topic"
+        placeholder="e.g. Deep Learning for Medical Imaging"
+        autocomplete="off"
+      />
+    </div>
+    <div class="form-field">
+      <label for="folder-path-input">Folder path:</label>
+      <input
+        id="folder-path-input"
+        type="text"
+        name="folder_path"
+        placeholder="e.g. /home/user/shrek/papers"
+        required
+        autocomplete="off"
+        style="min-width:340px;width:100%;max-width:700px;"
+      />
+    </div>
+    <div style="width:100%;display:flex;justify-content:center;margin-top:0.5rem;">
+      <button type="submit" class="generate-btn">Generate Review</button>
+    </div>
   </form>
 
   {% if error %}

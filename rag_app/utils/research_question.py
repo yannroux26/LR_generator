@@ -1,7 +1,7 @@
 from typing import Dict
 from langfuse import get_client
 from langfuse.openai import openai
-from .llm_retry import retry_on_rate_limit
+from .llm_retry import extractor_retry_or_none
 
 langfuse = get_client()
 
@@ -11,7 +11,7 @@ Extract the main research question or hypothesis from the following academic pap
 Respond in one sentence.'''
 
 
-@retry_on_rate_limit
+@extractor_retry_or_none
 def extract_research_question(text: str) -> str:
     """
     Calls LLM to extract the core research question or hypothesis.

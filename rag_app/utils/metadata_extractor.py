@@ -6,7 +6,7 @@ from langchain.text_splitter import CharacterTextSplitter
 
 from langfuse import get_client
 from langfuse.openai import openai
-from .llm_retry import retry_on_rate_limit
+from .llm_retry import extractor_retry_or_none
 
 langfuse = get_client()
 
@@ -19,7 +19,7 @@ PROMPT = (
 )
 
 
-@retry_on_rate_limit
+@extractor_retry_or_none
 def metadata_extractor(metadata_section) -> Dict:
     """
     call the LLM to extract metadata from the given section of text.

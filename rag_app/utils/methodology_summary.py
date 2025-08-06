@@ -1,7 +1,7 @@
 from typing import List, Dict
 from langfuse import get_client
 from langfuse.openai import openai
-from .llm_retry import retry_on_rate_limit
+from .llm_retry import extractor_retry_or_none
 
 langfuse = get_client()
 # Prompt template for methodology summarization
@@ -11,7 +11,7 @@ Include study type, data sources, and key techniques.\
 Provide 3-4 concise bullet points.'''
 
 
-@retry_on_rate_limit
+@extractor_retry_or_none
 def summarize_methodology(text: str) -> List[str]:
     """
     Calls LLM to summarize methodology into bullet points.
