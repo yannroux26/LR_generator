@@ -53,6 +53,8 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
     5. Compose & edit final review
     Returns final edited review plus intermediate data.
     """
+    LR_start_time = time.time()
+    
     # Dynamically load settings from AppSettings
     try:
         from rag_app.models import AppSettings
@@ -112,7 +114,9 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
     try:
         raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
         print("\nEditing review")
-        final_review = edit_review(raw_draft, max_tokens=max_tokens_edit)
+        # Gather all paper metadata for the editor
+        all_metadata = [paper["metadata"] for paper in paper_data]
+        final_review = edit_review(raw_draft, max_tokens=max_tokens_edit, paper_metadata=all_metadata)
     except ValueError as e:
         print(f"Error in compose_review: {e}")
         raw_draft = "Error too many papers in input"
@@ -122,6 +126,8 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
         )
         status = "FAILED"
 
+    print(f"Total time needed for the literature review: {time.time() - LR_start_time:.2f} seconds")
+    
     # Return full structure
     return {
         "paper_data": paper_data,
