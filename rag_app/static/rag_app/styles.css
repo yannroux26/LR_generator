@@ -1,3 +1,32 @@
+/* Info tooltip for settings page */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 400px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.80em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+}
+.tooltip:hover .tooltip-text,
+.tooltip:focus-within .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
 /* Settings/Parameters Page Styles */
 .settings-form {
   max-width: 540px;

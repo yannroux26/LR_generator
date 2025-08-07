@@ -1,62 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Settings{% endblock %}
 {% block content %}
-<div class="settings-form">
+<div class="settings-form" style="max-width: 800px; margin: 0 auto;">
   <h1>Parameters</h1>
   {% if saved %}
     <div class="success">Parameters saved!</div>
   {% endif %}
-  <!-- Character limits form -->
-  <form method="post" id="char-limits-form">
-    {% csrf_token %}
-    <input type="hidden" name="char_limits_save" value="1">
-    <fieldset>
-      <legend>Character limits per section</legend>
-      <label>Research Question:
-        <input type="number" name="research_question" value="{{ nbchar.research_question }}" min="100" max="20000" step="100" required>
-      </label>
-      <label>Methodology:
-        <input type="number" name="methodology" value="{{ nbchar.methodology }}" min="100" max="20000" step="100" required>
-      </label>
-      <label>Findings:
-        <input type="number" name="findings" value="{{ nbchar.findings }}" min="100" max="20000" step="100" required>
-      </label>
-      <label>Gaps:
-        <input type="number" name="gaps" value="{{ nbchar.gaps }}" min="100" max="20000" step="100" required>
-      </label>
-      <div style="margin-top:1rem;">
-        <button type="submit" class="generate-btn">Save</button>
-        <button type="button" id="reset-char-btn">Reset</button>
-      </div>
-    </fieldset>
-  </form>
 
-  <!-- Token limits form -->
-  <form method="post" id="token-limits-form">
-    {% csrf_token %}
-    <input type="hidden" name="token_limits_save" value="1">
-    <fieldset>
-      <legend>Token limits</legend>
-      <label>Max tokens to compose the review:
-        <input type="number" id="max_tokens_compose" name="max_tokens_compose" value="{{ max_tokens_compose }}" min="100" max="4000" step="50" required>
-      </label>
-      <label>Max tokens to edit the review:
-        <input type="number" id="max_tokens_edit" name="max_tokens_edit" value="{{ max_tokens_edit }}" min="100" max="4000" step="50" required>
-      </label>
-      <div id="max-token-msg">
-        <em>Note: The max tokens to edit the review must be greater or equal to the max tokens to compose the review.</em>
-      </div>
-      <div style="margin-top:1rem;">
-        <button type="submit" class="generate-btn">Save</button>
-        <button type="button" id="reset-token-btn">Reset</button>
-      </div>
-    </fieldset>
-  </form>
+  <div style="display: flex; gap: 2rem; align-items: flex-start; margin-bottom: 2rem;">
+    <!-- Character limits form -->
+    <form method="post" id="char-limits-form" style="flex: 1 1 340px; min-width: 280px; max-width: 400px;">
+      {% csrf_token %}
+      <input type="hidden" name="char_limits_save" value="1">
+      <fieldset>
+        <legend>Character limits per section
+          <span class="tooltip" style="margin-left:6px;">
+            ℹ️
+            <span class="tooltip-text">When loading a paper, it extracts sections (e.g., Abstract, Introduction, etc.) of text to analyze. This is where the limits will be applied. Sections are then grouped by categories (e.g., Research Question, Methodology, etc.).</span>
+          </span>
+        </legend>
+        <label>Research Question:
+          <input type="number" name="research_question" value="{{ nbchar.research_question }}" min="100" max="20000" step="100" required>
+        </label>
+        <label>Methodology:
+          <input type="number" name="methodology" value="{{ nbchar.methodology }}" min="100" max="20000" step="100" required>
+        </label>
+        <label>Findings:
+          <input type="number" name="findings" value="{{ nbchar.findings }}" min="100" max="20000" step="100" required>
+        </label>
+        <label>Gaps:
+          <input type="number" name="gaps" value="{{ nbchar.gaps }}" min="100" max="20000" step="100" required>
+        </label>
+        <div style="margin-top:1rem;">
+          <button type="submit" class="generate-btn">Save</button>
+          <button type="button" id="reset-char-btn">Reset</button>
+        </div>
+      </fieldset>
+    </form>
+
+    <!-- Token limits form -->
+    <form method="post" id="token-limits-form" style="flex: 1 1 260px; min-width: 220px; max-width: 320px;">
+      {% csrf_token %}
+      <input type="hidden" name="token_limits_save" value="1">
+      <fieldset>
+        <legend>Token limits
+          <span class="tooltip" style="margin-left:6px;">
+            ℹ️
+            <span class="tooltip-text">The maximum token is the number of tokens (i.e. words) maximum that will be used to write the review. Increasing the maximum will increased the cost of the generation. The edit will improved the review in particular in adding references, this is why a higher limit is required</span>
+          </span>
+        </legend>
+        <label>Max tokens to compose the review:
+          <input type="number" id="max_tokens_compose" name="max_tokens_compose" value="{{ max_tokens_compose }}" min="100" max="4000" step="50" required>
+        </label>
+        <label>Max tokens to edit the review:
+          <input type="number" id="max_tokens_edit" name="max_tokens_edit" value="{{ max_tokens_edit }}" min="100" max="4000" step="50" required>
+        </label>
+        <div id="max-token-msg">
+          <em>Note: The max tokens to edit the review must be greater or equal to the max tokens to compose the review.</em>
+        </div>
+        <div style="margin-top:1rem;">
+          <button type="submit" class="generate-btn">Save</button>
+          <button type="button" id="reset-token-btn">Reset</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
 
   <!-- Writing Style section -->
   <fieldset style="margin-top:2rem;">
-    <legend>Writing Style</legend>
-    <div style="margin-top:1rem;">
+    <legend>Writing Style
+      <span class="tooltip" style="margin-left:6px;">
+        ℹ️
+        <span class="tooltip-text">To imitate your writing style, the writing style of the papers you have written will be analyzed. And then be applied to the generated review.</span>
+      </span>
+    </legend>
+    <div style="margin-top:0.1rem;">
+      <div style="margin-bottom:0.5rem; font-size:1rem; color:#333;">
+        Upload papers you wrote to show your writing style
+      </div>
       <form id="writing-style-upload-form" method="post" enctype="multipart/form-data" style="margin-bottom:1rem;">
         {% csrf_token %}
         <input type="hidden" name="writing_file_upload" value="1">
@@ -65,18 +86,29 @@
       </form>
       <div id="writing-style-files-list" style="margin-top:0.5rem;">
         <strong>Uploaded files:</strong>
-        <ul>
-          {% for file in writing_files %}
-            <li>{{ file.original_name }}
-              <form method="post" action="{% url 'rag_app:delete_writing_file' file.id %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" style="color:red;">Delete</button>
-              </form>
-            </li>
-          {% empty %}
-            <li>No writing style files uploaded.</li>
-          {% endfor %}
-        </ul>
+        <table style="width:100%; border-collapse:collapse; margin-top:0.5rem;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:4px 8px; border-bottom:1px solid #ccc;">File Name</th>
+              <th style="width:90px; text-align:center; padding:4px 8px; border-bottom:1px solid #ccc;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for file in writing_files %}
+              <tr>
+                <td style="padding:4px 8px;">{{ file.original_name }}</td>
+                <td style="text-align:center; padding:4px 8px;">
+                  <form method="post" action="{% url 'rag_app:delete_writing_file' file.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="color:red;">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2" style="padding:4px 8px;">No writing style files uploaded.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
   </fieldset>
@@ -127,6 +159,5 @@
       writingFileInput.value = '';
     });
   </script>
-  </form>
 </div>
 {% endblock %}
