@@ -1,5 +1,14 @@
+
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+
+class WritingStyleFile(models.Model):
+    file = models.FileField(upload_to='writing_styles/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    original_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.original_name
 
 class AppSettings(models.Model):
     research_question_chars = models.IntegerField(default=5000)

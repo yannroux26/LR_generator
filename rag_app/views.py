@@ -1,19 +1,35 @@
 from django.views.decorators.csrf import csrf_exempt
-from .models import AppSettings
+from django.views.decorators.http import require_POST
+from .models import AppSettings, WritingStyleFile
+from .utils.writing_style_sync import delete_writing_style_file, sync_writing_style_folder
 
 def settings_view(request):
     settings = AppSettings.get_solo()
+    writing_files = WritingStyleFile.objects.all().order_by('-uploaded_at')
+    saved = False
     if request.method == "POST":
-        settings.research_question_chars = int(request.POST.get("research_question", 5000))
-        settings.methodology_chars = int(request.POST.get("methodology", 5000))
-        settings.findings_chars = int(request.POST.get("findings", 5000))
-        settings.gaps_chars = int(request.POST.get("gaps", 5000))
-        settings.max_tokens_compose = int(request.POST.get("max_tokens_compose", 1500))
-        settings.max_tokens_edit = int(request.POST.get("max_tokens_edit", 1500))
-        settings.save()
-        saved = True
-    else:
-        saved = False
+        # Distinguish file upload from parameter save
+        if request.POST.get('writing_file_upload') == '1' and 'writing_file' in request.FILES:
+            for f in request.FILES.getlist('writing_file'):
+                WritingStyleFile.objects.create(
+                    file=f,
+                    original_name=f.name
+                )
+            sync_writing_style_folder()
+            writing_files = WritingStyleFile.objects.all().order_by('-uploaded_at')
+        else:
+            if request.POST.get('char_limits_save') == '1':
+                settings.research_question_chars = int(request.POST.get("research_question", 5000))
+                settings.methodology_chars = int(request.POST.get("methodology", 5000))
+                settings.findings_chars = int(request.POST.get("findings", 5000))
+                settings.gaps_chars = int(request.POST.get("gaps", 5000))
+                settings.save()
+                saved = True
+            elif request.POST.get('token_limits_save') == '1':
+                settings.max_tokens_compose = int(request.POST.get("max_tokens_compose", 1500))
+                settings.max_tokens_edit = int(request.POST.get("max_tokens_edit", 1500))
+                settings.save()
+                saved = True
     nbchar = {
         "research_question": settings.research_question_chars,
         "methodology": settings.methodology_chars,
@@ -24,8 +40,15 @@ def settings_view(request):
         "nbchar": nbchar,
         "max_tokens_compose": settings.max_tokens_compose,
         "max_tokens_edit": settings.max_tokens_edit,
-        "saved": saved
+        "saved": saved,
+        "writing_files": writing_files,
     })
+
+@require_POST
+def delete_writing_file(request, file_id):
+    delete_writing_style_file(file_id)
+    sync_writing_style_folder()
+    return redirect(reverse('rag_app:settings'))
 import os
 import string
 from django.shortcuts import render, redirect, get_object_or_404

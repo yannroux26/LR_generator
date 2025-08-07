@@ -6,8 +6,10 @@
   {% if saved %}
     <div class="success">Parameters saved!</div>
   {% endif %}
-  <form method="post">
+  <!-- Character limits form -->
+  <form method="post" id="char-limits-form">
     {% csrf_token %}
+    <input type="hidden" name="char_limits_save" value="1">
     <fieldset>
       <legend>Character limits per section</legend>
       <label>Research Question:
@@ -22,7 +24,17 @@
       <label>Gaps:
         <input type="number" name="gaps" value="{{ nbchar.gaps }}" min="100" max="20000" step="100" required>
       </label>
+      <div style="margin-top:1rem;">
+        <button type="submit" class="generate-btn">Save</button>
+        <button type="button" id="reset-char-btn">Reset</button>
+      </div>
     </fieldset>
+  </form>
+
+  <!-- Token limits form -->
+  <form method="post" id="token-limits-form">
+    {% csrf_token %}
+    <input type="hidden" name="token_limits_save" value="1">
     <fieldset>
       <legend>Token limits</legend>
       <label>Max tokens to compose the review:
@@ -34,26 +46,60 @@
       <div id="max-token-msg">
         <em>Note: The max tokens to edit the review must be greater or equal to the max tokens to compose the review.</em>
       </div>
+      <div style="margin-top:1rem;">
+        <button type="submit" class="generate-btn">Save</button>
+        <button type="button" id="reset-token-btn">Reset</button>
+      </div>
     </fieldset>
-    <button type="submit" class="generate-btn">Save</button>
-    <button type="button" id="reset-btn">Reset</button>
   </form>
+
+  <!-- Writing Style section -->
+  <fieldset style="margin-top:2rem;">
+    <legend>Writing Style</legend>
+    <div style="margin-top:1rem;">
+      <form id="writing-style-upload-form" method="post" enctype="multipart/form-data" style="margin-bottom:1rem;">
+        {% csrf_token %}
+        <input type="hidden" name="writing_file_upload" value="1">
+        <input type="file" name="writing_file" id="writing_file_input" accept="application/pdf" multiple required>
+        <button type="submit">Upload</button>
+      </form>
+      <div id="writing-style-files-list" style="margin-top:0.5rem;">
+        <strong>Uploaded files:</strong>
+        <ul>
+          {% for file in writing_files %}
+            <li>{{ file.original_name }}
+              <form method="post" action="{% url 'rag_app:delete_writing_file' file.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="color:red;">Delete</button>
+              </form>
+            </li>
+          {% empty %}
+            <li>No writing style files uploaded.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </fieldset>
   <script>
     // Ensure max_tokens_edit >= max_tokens_compose
     const composeInput = document.getElementById('max_tokens_compose');
     const editInput = document.getElementById('max_tokens_edit');
-    const form = document.querySelector('form');
-    const resetBtn = document.getElementById('reset-btn');
-    // Default values
-    const defaults = {
-      research_question: 5000,
-      methodology: 5000,
-      findings: 5000,
-      gaps: 5000,
-      max_tokens_compose: 1500,
-      max_tokens_edit: 1500
-    };
-    form.addEventListener('submit', function(e) {
+    // Character limits reset
+    const charForm = document.getElementById('char-limits-form');
+    const resetCharBtn = document.getElementById('reset-char-btn');
+    resetCharBtn.addEventListener('click', function() {
+      charForm.research_question.value = 5000;
+      charForm.methodology.value = 5000;
+      charForm.findings.value = 5000;
+      charForm.gaps.value = 5000;
+    });
+
+    // Token limits validation and reset
+    const tokenForm = document.getElementById('token-limits-form');
+    const composeInput = document.getElementById('max_tokens_compose');
+    const editInput = document.getElementById('max_tokens_edit');
+    const resetTokenBtn = document.getElementById('reset-token-btn');
+    tokenForm.addEventListener('submit', function(e) {
       const composeVal = parseInt(composeInput.value, 10);
       const editVal = parseInt(editInput.value, 10);
       if (editVal < composeVal) {
@@ -62,22 +108,23 @@
         e.preventDefault();
       }
     });
-    // Optionally, auto-correct on input
     composeInput.addEventListener('input', function() {
       if (parseInt(editInput.value, 10) < parseInt(composeInput.value, 10)) {
         editInput.value = composeInput.value;
       }
       editInput.min = composeInput.value;
     });
-    // Custom reset: set all fields to default values
-    resetBtn.addEventListener('click', function() {
-      form.research_question.value = defaults.research_question;
-      form.methodology.value = defaults.methodology;
-      form.findings.value = defaults.findings;
-      form.gaps.value = defaults.gaps;
-      form.max_tokens_compose.value = defaults.max_tokens_compose;
-      form.max_tokens_edit.value = defaults.max_tokens_edit;
-      editInput.min = defaults.max_tokens_compose;
+    resetTokenBtn.addEventListener('click', function() {
+      tokenForm.max_tokens_compose.value = 1500;
+      tokenForm.max_tokens_edit.value = 1500;
+      editInput.min = 1500;
+    });
+
+    // Writing style reset (clears file input)
+    const resetWritingBtn = document.getElementById('reset-writing-btn');
+    const writingFileInput = document.getElementById('writing_file_input');
+    resetWritingBtn.addEventListener('click', function() {
+      writingFileInput.value = '';
     });
   </script>
   </form>
