@@ -1,3 +1,55 @@
+/* Writing Style Files Table */
+.writing-style-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8fafd;
+  border-radius: 7px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+.writing-style-table th, .writing-style-table td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+.writing-style-table th {
+  background: #e7f0fa;
+  color: #0057e7;
+  font-weight: 600;
+  font-size: 1.01rem;
+  border-bottom: 1.5px solid #c2d3e7;
+}
+.writing-style-table td {
+  background: #fff;
+  color: #2a3a4b;
+  font-size: 1.01rem;
+  border-bottom: 1px solid #e3e8f0;
+}
+.writing-style-table tr:last-child td {
+  border-bottom: none;
+}
+.writing-style-table tr:hover td {
+  background: #f2f6fa;
+}
+.writing-style-table button {
+  background: #ffeaea;
+  color: #b30000;
+  border: 1px solid #ffb3b3;
+  border-radius: 3px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.97rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.writing-style-table button:hover {
+  background: #ffd6d6;
+  color: #fff;
+}
+.writing-style-table td[colspan] {
+  text-align: center;
+  color: #888;
+  background: #f8fafd;
+}
 /* Info tooltip for settings page */
 .tooltip {
   position: relative;

@@ -33,7 +33,6 @@
         </label>
         <div style="margin-top:1rem;">
           <button type="submit" class="generate-btn">Save</button>
-          <button type="button" id="reset-char-btn">Reset</button>
         </div>
       </fieldset>
     </form>
@@ -50,17 +49,16 @@
           </span>
         </legend>
         <label>Max tokens to compose the review:
-          <input type="number" id="max_tokens_compose" name="max_tokens_compose" value="{{ max_tokens_compose }}" min="100" max="4000" step="50" required>
+          <input type="number" id="max_tokens_compose" name="max_tokens_compose" value="{{ max_tokens_compose }}" min="100" max="10000" step="50" required>
         </label>
         <label>Max tokens to edit the review:
-          <input type="number" id="max_tokens_edit" name="max_tokens_edit" value="{{ max_tokens_edit }}" min="100" max="4000" step="50" required>
+          <input type="number" id="max_tokens_edit" name="max_tokens_edit" value="{{ max_tokens_edit }}" min="100" max="10000" step="50" required>
         </label>
         <div id="max-token-msg">
           <em>Note: The max tokens to edit the review must be greater or equal to the max tokens to compose the review.</em>
         </div>
         <div style="margin-top:1rem;">
           <button type="submit" class="generate-btn">Save</button>
-          <button type="button" id="reset-token-btn">Reset</button>
         </div>
       </fieldset>
     </form>
@@ -86,18 +84,18 @@
       </form>
       <div id="writing-style-files-list" style="margin-top:0.5rem;">
         <strong>Uploaded files:</strong>
-        <table style="width:100%; border-collapse:collapse; margin-top:0.5rem;">
+        <table class="writing-style-table">
           <thead>
             <tr>
-              <th style="text-align:left; padding:4px 8px; border-bottom:1px solid #ccc;">File Name</th>
-              <th style="width:90px; text-align:center; padding:4px 8px; border-bottom:1px solid #ccc;">Action</th>
+              <th>File Name</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {% for file in writing_files %}
               <tr>
-                <td style="padding:4px 8px;">{{ file.original_name }}</td>
-                <td style="text-align:center; padding:4px 8px;">
+                <td>{{ file.original_name }}</td>
+                <td>
                   <form method="post" action="{% url 'rag_app:delete_writing_file' file.id %}" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" style="color:red;">Delete</button>
@@ -105,7 +103,7 @@
                 </td>
               </tr>
             {% empty %}
-              <tr><td colspan="2" style="padding:4px 8px;">No writing style files uploaded.</td></tr>
+              <tr><td colspan="2">No writing style files uploaded.</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -116,21 +114,12 @@
     // Ensure max_tokens_edit >= max_tokens_compose
     const composeInput = document.getElementById('max_tokens_compose');
     const editInput = document.getElementById('max_tokens_edit');
-    // Character limits reset
-    const charForm = document.getElementById('char-limits-form');
-    const resetCharBtn = document.getElementById('reset-char-btn');
-    resetCharBtn.addEventListener('click', function() {
-      charForm.research_question.value = 5000;
-      charForm.methodology.value = 5000;
-      charForm.findings.value = 5000;
-      charForm.gaps.value = 5000;
-    });
+    // Character limits reset removed
 
-    // Token limits validation and reset
+    // Token limits validation
     const tokenForm = document.getElementById('token-limits-form');
     const composeInput = document.getElementById('max_tokens_compose');
     const editInput = document.getElementById('max_tokens_edit');
-    const resetTokenBtn = document.getElementById('reset-token-btn');
     tokenForm.addEventListener('submit', function(e) {
       const composeVal = parseInt(composeInput.value, 10);
       const editVal = parseInt(editInput.value, 10);
@@ -139,17 +128,6 @@
         editInput.focus();
         e.preventDefault();
       }
-    });
-    composeInput.addEventListener('input', function() {
-      if (parseInt(editInput.value, 10) < parseInt(composeInput.value, 10)) {
-        editInput.value = composeInput.value;
-      }
-      editInput.min = composeInput.value;
-    });
-    resetTokenBtn.addEventListener('click', function() {
-      tokenForm.max_tokens_compose.value = 1500;
-      tokenForm.max_tokens_edit.value = 1500;
-      editInput.min = 1500;
     });
 
     // Writing style reset (clears file input)
