@@ -5,3 +5,4 @@ results/
 __pycache__/
 db.sqlite3
 faiss_index/
+writing_styles/
