@@ -73,41 +73,12 @@
       </span>
     </legend>
     <div style="margin-top:0.1rem;">
-      <div style="margin-bottom:0.5rem; font-size:1rem; color:#333;">
-        Upload papers you wrote to show your writing style
-      </div>
-      <form id="writing-style-upload-form" method="post" enctype="multipart/form-data" style="margin-bottom:1rem;">
+      <form method="post" style="margin-bottom:0.7rem;">
         {% csrf_token %}
-        <input type="hidden" name="writing_file_upload" value="1">
-        <input type="file" name="writing_file" id="writing_file_input" accept="application/pdf" multiple required>
-        <button type="submit">Upload</button>
+        <input type="hidden" name="writing_style_save" value="1">
+        <textarea name="writing_style_text" rows="8" style="width:100%;font-size:1.05em;padding:0.7em;border-radius:6px;border:1.2px solid #b6c2d1;resize:vertical;" placeholder="Write or paste your writing style sample here..."></textarea>
+        <button type="submit" class="generate-btn" style="margin-top:0.7em;">Save Text</button>
       </form>
-      <div id="writing-style-files-list" style="margin-top:0.5rem;">
-        <strong>Uploaded files:</strong>
-        <table class="writing-style-table">
-          <thead>
-            <tr>
-              <th>File Name</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for file in writing_files %}
-              <tr>
-                <td>{{ file.original_name }}</td>
-                <td>
-                  <form method="post" action="{% url 'rag_app:delete_writing_file' file.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" style="color:red;">Delete</button>
-                  </form>
-                </td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="2">No writing style files uploaded.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
     </div>
   </fieldset>
   <script>
