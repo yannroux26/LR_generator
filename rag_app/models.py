@@ -18,6 +18,8 @@ class AppSettings(models.Model):
     max_tokens_compose = models.IntegerField(default=1500)
     max_tokens_edit = models.IntegerField(default=1500)
 
+    writing_style_text = models.TextField(blank=True, default="")
+
     def save(self, *args, **kwargs):
         self.pk = 1  # enforce singleton
         super().save(*args, **kwargs)

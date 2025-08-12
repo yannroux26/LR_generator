@@ -76,7 +76,7 @@
       <form method="post" style="margin-bottom:0.7rem;">
         {% csrf_token %}
         <input type="hidden" name="writing_style_save" value="1">
-        <textarea name="writing_style_text" rows="8" style="width:100%;font-size:1.05em;padding:0.7em;border-radius:6px;border:1.2px solid #b6c2d1;resize:vertical;" placeholder="Write or paste your writing style sample here..."></textarea>
+  <textarea name="writing_style_text" rows="8" style="width:100%;font-size:1.05em;padding:0.7em;border-radius:6px;border:1.2px solid #b6c2d1;resize:vertical;" placeholder="Write or paste your writing style sample here...">{{ writing_style_text|default_if_none:"" }}</textarea>
         <button type="submit" class="generate-btn" style="margin-top:0.7em;">Save Text</button>
       </form>
     </div>

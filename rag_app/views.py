@@ -8,28 +8,22 @@ def settings_view(request):
     writing_files = WritingStyleFile.objects.all().order_by('-uploaded_at')
     saved = False
     if request.method == "POST":
-        # Distinguish file upload from parameter save
-        if request.POST.get('writing_file_upload') == '1' and 'writing_file' in request.FILES:
-            for f in request.FILES.getlist('writing_file'):
-                WritingStyleFile.objects.create(
-                    file=f,
-                    original_name=f.name
-                )
-            sync_writing_style_folder()
-            writing_files = WritingStyleFile.objects.all().order_by('-uploaded_at')
-        else:
-            if request.POST.get('char_limits_save') == '1':
-                settings.research_question_chars = int(request.POST.get("research_question", 5000))
-                settings.methodology_chars = int(request.POST.get("methodology", 5000))
-                settings.findings_chars = int(request.POST.get("findings", 5000))
-                settings.gaps_chars = int(request.POST.get("gaps", 5000))
-                settings.save()
-                saved = True
-            elif request.POST.get('token_limits_save') == '1':
-                settings.max_tokens_compose = int(request.POST.get("max_tokens_compose", 1500))
-                settings.max_tokens_edit = int(request.POST.get("max_tokens_edit", 1500))
-                settings.save()
-                saved = True
+        if request.POST.get('char_limits_save') == '1':
+            settings.research_question_chars = int(request.POST.get("research_question", 5000))
+            settings.methodology_chars = int(request.POST.get("methodology", 5000))
+            settings.findings_chars = int(request.POST.get("findings", 5000))
+            settings.gaps_chars = int(request.POST.get("gaps", 5000))
+            settings.save()
+            saved = True
+        elif request.POST.get('token_limits_save') == '1':
+            settings.max_tokens_compose = int(request.POST.get("max_tokens_compose", 1500))
+            settings.max_tokens_edit = int(request.POST.get("max_tokens_edit", 1500))
+            settings.save()
+            saved = True
+        elif request.POST.get('writing_style_save') == '1':
+            settings.writing_style_text = request.POST.get("writing_style_text", "")
+            settings.save()
+            saved = True
     nbchar = {
         "research_question": settings.research_question_chars,
         "methodology": settings.methodology_chars,
@@ -41,7 +35,7 @@ def settings_view(request):
         "max_tokens_compose": settings.max_tokens_compose,
         "max_tokens_edit": settings.max_tokens_edit,
         "saved": saved,
-        "writing_files": writing_files,
+        "writing_style_text": getattr(settings, 'writing_style_text', ''),
     })
 
 @require_POST
