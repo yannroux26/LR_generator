@@ -11,6 +11,7 @@ class WritingStyleFile(models.Model):
         return self.original_name
 
 class AppSettings(models.Model):
+    writing_style_description = models.TextField(blank=True, default="")
     research_question_chars = models.IntegerField(default=5000)
     methodology_chars = models.IntegerField(default=5000)
     findings_chars = models.IntegerField(default=5000)

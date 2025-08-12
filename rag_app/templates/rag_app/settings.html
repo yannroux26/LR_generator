@@ -76,8 +76,16 @@
       <form method="post" style="margin-bottom:0.7rem;">
         {% csrf_token %}
         <input type="hidden" name="writing_style_save" value="1">
+  <div style="margin-bottom:0.5em; color:#444; font-size:1.04em;">Paste here some text you wrote, to show your writing style.</div>
   <textarea name="writing_style_text" rows="8" style="width:100%;font-size:1.05em;padding:0.7em;border-radius:6px;border:1.2px solid #b6c2d1;resize:vertical;" placeholder="Write or paste your writing style sample here...">{{ writing_style_text|default_if_none:"" }}</textarea>
         <button type="submit" class="generate-btn" style="margin-top:0.7em;">Save Text</button>
+      </form>
+      <form method="post" style="margin-bottom:0.7rem;">
+        {% csrf_token %}
+        <input type="hidden" name="writing_style_description_save" value="1">
+        <div style="margin-bottom:0.5em; color:#444; font-size:1.04em;">Below is a description of your writing style that you can edit.</div>
+        <textarea name="writing_style_description" rows="6" style="width:100%;font-size:1.05em;padding:0.7em;border-radius:6px;border:1.2px solid #b6c2d1;resize:vertical;" placeholder="Describe your writing style here...">{{ writing_style_description|default_if_none:"" }}</textarea>
+        <button type="submit" class="generate-btn" style="margin-top:0.7em;">Save Description</button>
       </form>
     </div>
   </fieldset>

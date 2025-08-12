@@ -24,6 +24,10 @@ def settings_view(request):
             settings.writing_style_text = request.POST.get("writing_style_text", "")
             settings.save()
             saved = True
+        elif request.POST.get('writing_style_description_save') == '1':
+            settings.writing_style_description = request.POST.get("writing_style_description", "")
+            settings.save()
+            saved = True
     nbchar = {
         "research_question": settings.research_question_chars,
         "methodology": settings.methodology_chars,
@@ -36,6 +40,7 @@ def settings_view(request):
         "max_tokens_edit": settings.max_tokens_edit,
         "saved": saved,
         "writing_style_text": getattr(settings, 'writing_style_text', ''),
+        "writing_style_description": getattr(settings, 'writing_style_description', ''),
     })
 
 @require_POST
