@@ -24,6 +24,19 @@
     <div class="final-review" id="final-review-text">
       {{ result.final_review|linebreaks }}
     </div>
+    <hr style="margin:2em 0;">
+    <details class="paper-item" style="margin-bottom:1.5em;">
+      <summary><strong>Raw Draft (before style and editing)</strong></summary>
+      <div class="raw-draft" style="background:#f8f9fb;padding:1em 1.2em;border-radius:6px;border:1px solid #e0e4ea;margin:1em 0 0.5em 0;white-space:pre-wrap;">
+        {{ result.raw_draft|linebreaks }}
+      </div>
+    </details>
+    <details class="paper-item" style="margin-bottom:2em;">
+      <summary><strong>LR Styled (after style applied, before editing)</strong></summary>
+      <div class="lr-styled" style="background:#f8f9fb;padding:1em 1.2em;border-radius:6px;border:1px solid #e0e4ea;margin:1em 0 0.5em 0;white-space:pre-wrap;">
+        {{ result.LR_styled|linebreaks }}
+      </div>
+    </details>
   </section>
 <script>
 // Copy final review text to clipboard

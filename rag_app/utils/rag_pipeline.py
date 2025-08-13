@@ -5,6 +5,8 @@ from typing import Dict, Any, List
 import time
 import concurrent.futures
 
+from rag_app.utils.style_applier import apply_writing_style
+
 # Import agents
 from .file_loader import ingest_folder
 from .metadata_extractor import metadata_extractor
@@ -43,7 +45,7 @@ def process_paper(fname, sections):
         "gaps": gaps.get("gaps", []),
     }
 
-def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
+def run_rag_litreview(folder_path: str, topic: str=None, writing_style: str=None) -> Dict[str, Any]:
     """
     End-to-end pipeline:
     1. Ingest PDFs → raw text corpus
@@ -107,19 +109,30 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
             theme for theme, members in themes.items() if paper_title in members
         ]
 
-    # 5. Compose & edit
+    # 5. Compose, apply style & edit
     all_data = {"papers": paper_data, "topic": topic}
+    all_metadata = [paper["metadata"] for paper in paper_data]
+    
     print("\nComposing review")
     status = "COMPLETED"
     try:
         raw_draft = compose_review(all_data, max_tokens=max_tokens_compose)
-        print("\nEditing review")
-        # Gather all paper metadata for the editor
-        all_metadata = [paper["metadata"] for paper in paper_data]
-        final_review = edit_review(raw_draft, max_tokens=max_tokens_edit, paper_metadata=all_metadata)
+
+        if writing_style:
+            print("\nApplying writing style")
+            LR_styled = apply_writing_style(raw_draft, writing_style, max_tokens=max_tokens_compose)
+            
+            print("\nEditing review")
+            final_review = edit_review(LR_styled, max_tokens=max_tokens_edit, paper_metadata=all_metadata)
+        else:
+            LR_styled = "no style applied"
+            print("\nEditing review")
+            final_review = edit_review(raw_draft, max_tokens=max_tokens_edit, paper_metadata=all_metadata)
+
     except ValueError as e:
         print(f"Error in compose_review: {e}")
         raw_draft = "Error too many papers in input"
+        LR_styled = "Error too many papers in input"
         final_review = (
             "Error : The literature review could not be generated, because it would have exceed the Token Per Minute limit (TPM). "
             "Please reduce the number of papers given in input."
@@ -134,6 +147,7 @@ def run_rag_litreview(folder_path: str, topic: str=None) -> Dict[str, Any]:
         "themes": themes,
         "topic": topic,
         "raw_draft": raw_draft,
+        "LR_styled": LR_styled,
         "final_review": final_review,
         "status": status,
     }

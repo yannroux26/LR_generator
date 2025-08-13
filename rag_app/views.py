@@ -1,6 +1,16 @@
-from django.http import JsonResponse
-from .utils.writing_style_describer import describe_writing_style
+import os
+import string
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
+from .forms import FolderSelectionForm
+from .models import AppSettings, WritingStyleFile, ReviewRun
+from .utils.rag_pipeline import run_rag_litreview
+from .utils.writing_style_sync import delete_writing_style_file, sync_writing_style_folder
+from .utils.writing_style_describer import describe_writing_style
 
 @csrf_exempt
 def analyse_writing_style(request):
@@ -14,10 +24,6 @@ def analyse_writing_style(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request."}, status=400)
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from .models import AppSettings, WritingStyleFile
-from .utils.writing_style_sync import delete_writing_style_file, sync_writing_style_folder
 
 def settings_view(request):
     settings = AppSettings.get_solo()
@@ -64,15 +70,6 @@ def delete_writing_file(request, file_id):
     delete_writing_style_file(file_id)
     sync_writing_style_folder()
     return redirect(reverse('rag_app:settings'))
-import os
-import string
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from .forms import FolderSelectionForm
-from .models import ReviewRun
-from .utils.rag_pipeline import run_rag_litreview
-from django.views.decorators.http import require_POST
-from django.http import HttpResponseRedirect
 
 def index(request):
     form = FolderSelectionForm()
@@ -104,12 +101,16 @@ def generate_review(request):
 
     folder_path = form.cleaned_data["folder_path"]
     topic = form.cleaned_data.get("topic", "").strip()
+    # Get writing style description from settings
+    from .models import AppSettings
+    settings = AppSettings.get_solo()
+    writing_style = getattr(settings, 'writing_style_description', None)
     # Create a ReviewRun entry
     review_name = topic if topic else os.path.basename(folder_path.rstrip('/\\'))
     run = ReviewRun.objects.create(folder_path=folder_path, name=review_name, status="RUNNING")
     try:
-        # Invoke pipeline with topic
-        result = run_rag_litreview(folder_path, topic if topic else None)
+        # Invoke pipeline with topic and writing style description
+        result = run_rag_litreview(folder_path, topic if topic else None, writing_style if writing_style else None)
         # Save results and mark completed
         run.result = result
         run.status = "COMPLETED"

@@ -12,7 +12,7 @@ Analyze the following text and provide a concise, objective description of the a
 )
 
 @retry_on_rate_limit
-def describe_writing_style(text: str, max_tokens: int = 256) -> str:
+def describe_writing_style(text: str, max_tokens: int = 512) -> str:
     """
     Calls OpenAI to describe the writing style of the input text.
     Returns only the style description.
