@@ -78,7 +78,53 @@
         <input type="hidden" name="writing_style_save" value="1">
   <div style="margin-bottom:0.5em; color:#444; font-size:1.04em;">Paste here some text you wrote, to show your writing style.</div>
   <textarea name="writing_style_text" rows="8" style="width:100%;font-size:1.05em;padding:0.7em;border-radius:6px;border:1.2px solid #b6c2d1;resize:vertical;" placeholder="Write or paste your writing style sample here...">{{ writing_style_text|default_if_none:"" }}</textarea>
-        <button type="submit" class="generate-btn" style="margin-top:0.7em;">Save Text</button>
+        <div style="display:flex;align-items:center;gap:0.7em;margin-top:0.7em;">
+          <button type="submit" class="generate-btn">Save Text</button>
+          <button type="button" id="analyse-style-btn" class="generate-btn">Analyse my style</button>
+        </div>
+<script>
+// Writing style analysis button logic
+document.addEventListener('DOMContentLoaded', function() {
+  const analyseBtn = document.getElementById('analyse-style-btn');
+  if (analyseBtn) {
+    analyseBtn.addEventListener('click', function() {
+      const textArea = document.querySelector('textarea[name="writing_style_text"]');
+      const descArea = document.querySelector('textarea[name="writing_style_description"]');
+      const descForm = descArea.closest('form');
+      const text = textArea.value;
+      if (!text.trim()) {
+        alert('Please enter some text to analyse.');
+        return;
+      }
+      analyseBtn.disabled = true;
+      analyseBtn.textContent = 'Analysing...';
+      fetch("{% url 'rag_app:analyse_writing_style' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+        },
+        body: 'writing_style_text=' + encodeURIComponent(text)
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.description) {
+          descArea.value = data.description;
+          // Auto-submit the description form to save
+          descForm.submit();
+        } else {
+          alert(data.error || 'Error analysing style.');
+        }
+      })
+      .catch(() => alert('Error analysing style.'))
+      .finally(() => {
+        analyseBtn.disabled = false;
+        analyseBtn.textContent = 'Analyse my style';
+      });
+    });
+  }
+});
+</script>
       </form>
       <form method="post" style="margin-bottom:0.7rem;">
         {% csrf_token %}

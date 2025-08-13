@@ -1,3 +1,19 @@
+from django.http import JsonResponse
+from .utils.writing_style_describer import describe_writing_style
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def analyse_writing_style(request):
+    if request.method == "POST":
+        text = request.POST.get("writing_style_text", "")
+        if not text.strip():
+            return JsonResponse({"error": "No text provided."}, status=400)
+        try:
+            description = describe_writing_style(text)
+            return JsonResponse({"description": description})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request."}, status=400)
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import AppSettings, WritingStyleFile
